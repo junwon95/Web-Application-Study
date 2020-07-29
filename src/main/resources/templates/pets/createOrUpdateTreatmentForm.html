@@ -1,0 +1,40 @@
+<html xmlns:th="https://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: layout (~{::body},'owners')}">
+
+<body>
+
+<h2>
+  New Treatment
+</h2>
+<form th:object="${treatment}" th:action="@{/treatment/{ownerId}/{visitId}(ownerId=${ownerId}, visitId=${visitId})}" class="form-horizontal" method="post">
+  <div class="form-group has-feedback">
+    <div class="form-group">
+      <div class="col-sm-30">
+
+        <label class="col-sm-20 control-label">Description </label>
+        <input class="form-control" th:field="*{description}" size="60" maxlength="80" />
+
+        <label class="col-sm-20 control-label">Prescription </label>
+        <input class="form-control" th:field="*{prescription}" size="60" maxlength="80" />
+
+        <label class="col-sm-20 control-label">Veterinarian </label>
+        <select th:field="*{vetId}">
+          <option th:each="v : ${vets}" th:value=${v.id} th:text="${v.firstName + ' ' + v.lastName}">
+          </option>
+        </select>
+
+      </div>
+    </div>
+  </div>
+  <div class="form-group">
+    <div class="col-sm-offset-2 col-sm-10">
+      <button
+        class="btn btn-default" type="submit" th:text="submit">
+      </button>
+    </div>
+  </div>
+</form>
+
+</body>
+
+</html>

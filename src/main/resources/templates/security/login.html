@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html xmlns:th="https://www.thymeleaf.org" th:replace="~{fragments/layout :: layout (~{::body},'home')}">
+
+<body>
+<div>
+  <p th:if="${param.error}" class="label label-danger">Invalid username or password</p>
+  <p th:if="${param.logout}" class="label label-danger">You have been logged out</p>
+</div>
+<form th:action="@{/signin}" method="post">
+  <div><label> UserName: <input type="text" name="username"/> </label></div>
+  <div><label> Password: <input type="password" name="password"/> </label></div>
+  <div>
+    <input type="submit" class="btn btn-default" value="Sign in"/>
+    <a th:href="@{/oauth2/authorization/github}" method="get"/>Sign in with Github</a>
+  </div>
+  </br>
+
+  <!--  Thymeleaf automatically assigns token value when @EnableWebSecurity annotation is present on the SecurityConfig class-->
+<!--  NOTE: "th:action" must be used in <form/> for this automatic feature to work -->
+<!--  ***  -->
+<!--  <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>-->
+</form>
+<div>
+  <a th:href="@{/findPassword}" method="get"/>Forgot your password?</a>
+</div>
+</body>
+</html>
+
+<!DOCTYPE html>

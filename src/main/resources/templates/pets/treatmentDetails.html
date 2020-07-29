@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+
+<html xmlns:th="https://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: layout (~{::body},'owners')}">
+
+<body>
+
+
+<h2>Treatment Record</h2>
+
+<table class="table table-striped" th:object="${treatment}">
+  <tr>
+    <th>Description</th>
+    <td th:text="*{description}"></td>
+  </tr>
+  <tr>
+    <th>Prescription</th>
+    <td th:text="*{prescription}"></td>
+  </tr>
+  <tr>
+    <th>Veterinarian</th>
+    <td th:text="${Fname} + ' ' + ${Lname} "></td>
+  </tr>
+</table>
+
+</html>

@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html xmlns:th="https://www.thymeleaf.org" th:replace="~{fragments/layout :: layout (~{::body},'home')}">
+
+<body>
+<div>
+  <label>
+    Sign Up
+  </label>
+  <label>
+    A confirmation mail has been sent to your email address.
+  </label>
+</div>
+<form th:object="${verificationDto}" th:action="@{/verify}" method="post">
+  <div>
+    <label> VerificationCode: <input type="password" class="form-control" th:field="*{verificationCode}"/> </label>
+    <input type="hidden" class="form-control" th:field="*{username}"/>
+    <input type="hidden" class="form-control" th:field="*{password}"/>
+    <input type="hidden" class="form-control" th:field="*{email}"/>
+    <input type="hidden" class="form-control" th:field="*{role}"/>
+  </div>
+  <br/>
+  <div><input type="submit" class="btn btn-default" value="verify"/></div>
+</form>
+</body>
+</html>
+
+<!DOCTYPE html>
+

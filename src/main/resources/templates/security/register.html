@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns:th="https://www.thymeleaf.org" th:replace="~{fragments/layout :: layout (~{::body},'home')}">
+
+<body>
+<div>
+  <label>
+    Sign Up
+  </label>
+</div>
+<form th:object="${member}" th:action="@{/register}" method="post">
+  <div>
+    <label> UserName: <input class="form-control" th:field="*{username}"/> </label>
+    <p th:if="${#fields.hasErrors('username')}" class="label label-danger" th:errors="*{username}">username err</p>
+  </div>
+  <div>
+    <label> PassWord: <input class="form-control" th:field="*{password}"/> </label>
+    <p th:if="${#fields.hasErrors('password')}" class="label label-danger" th:errors="*{password}">password err</p>
+  </div>
+  <div>
+    <label> Email: <input class="form-control" th:field="*{email}"/> </label>
+    <p th:if="${#fields.hasErrors('email')}" class="label label-danger" th:errors="*{email}">email err</p>
+  </div>
+  <br/>
+  <div>
+    <label> Role: </label>
+    <select th:field="*{role}">
+      <option th:value="ADMIN" th:text="Veterinarian"/>
+      <option th:value="USER" th:text="PetOwner"/>
+    </select>
+  </div>
+  <br/>
+  <div><input type="submit" class="btn btn-default" value="register"/></div>
+</form>
+</body>
+</html>
+
+<!DOCTYPE html>
+
