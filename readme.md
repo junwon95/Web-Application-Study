@@ -21,9 +21,14 @@ You can then access the application here: http://localhost:8080/
 The default setup is set to MySql.
 
 create user 'petclinic' on localhost(8080).
-then run src/main/resources/user.sql on MySql to initialize. (Once only) 
+then run src/main/resources/db/mysql/user.sql on MySql to initialize. (Once only) 
 
 You could start MySql locally with whatever installer works for your OS
+
+## Mail configuration
+
+On src/main/resources/application.yml
+fill in your email account and password.
 
 ## Working with Petclinic in your IDE
 
