@@ -6,7 +6,11 @@ import lombok.Setter;
 @Getter
 @Setter
 public class ChangePasswordDto {
+
 	String username;
+
 	String password;
+
 	String newPassword;
+
 }

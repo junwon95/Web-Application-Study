@@ -25,6 +25,7 @@ public class SecurityController {
 
 	@Autowired
 	UserService userService;
+
 	@Autowired
 	JavaMailSenderImpl mailSender;
 
@@ -82,7 +83,7 @@ public class SecurityController {
 
 			VerificationDto verificationDto = new VerificationDto();
 			verificationDto.setMember(member);
-			model.put("verificationDto",verificationDto);
+			model.put("verificationDto", verificationDto);
 
 			return "security/verify";
 		}
@@ -94,11 +95,11 @@ public class SecurityController {
 		String verificationCode = verificationDto.getVerificationCode();
 		Member member = verificationDto.getMember();
 
-		if(encoder.matches(member.getEmail(),verificationCode)){
+		if (encoder.matches(member.getEmail(), verificationCode)) {
 			memberRepository.save(member);
 			return "redirect:";
 		}
-		else{
+		else {
 			return "redirect:/verificationFailed";
 		}
 	}
@@ -116,7 +117,8 @@ public class SecurityController {
 	}
 
 	@PostMapping("/findPassword")
-	public String postFindPasswordForm(Map<String, Object> model, FindPasswordDto findPasswordDto, BindingResult result) {
+	public String postFindPasswordForm(Map<String, Object> model, FindPasswordDto findPasswordDto,
+			BindingResult result) {
 		Member member = memberRepository.findByUsername(findPasswordDto.getUsername());
 		if (member == null) {
 			result.rejectValue("username", "notFound", "not found");
@@ -153,14 +155,14 @@ public class SecurityController {
 		Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
 		// petclinic member
-		if (principal instanceof UserDetails){
-			String username = ((UserDetails)principal).getUsername();
+		if (principal instanceof UserDetails) {
+			String username = ((UserDetails) principal).getUsername();
 			Member member = memberRepository.findByUsername(username);
-			model.put("member",member);
+			model.put("member", member);
 			return "security/profile";
 		}
 		// OAUTH member
-		else{
+		else {
 			// TODO: link OAUTH with Members
 			return "redirect:";
 		}
@@ -172,12 +174,13 @@ public class SecurityController {
 		ChangePasswordDto changePasswordDto = new ChangePasswordDto();
 		changePasswordDto.setUsername(username);
 
-		model.put("passwordDto",changePasswordDto);
+		model.put("passwordDto", changePasswordDto);
 		return "security/changePassword";
 	}
 
 	@PostMapping("/changePassword")
-	public String postChangePasswordForm(Map<String, Object> model, @Valid @ModelAttribute("passwordDto") ChangePasswordDto passwordDto, BindingResult result) {
+	public String postChangePasswordForm(Map<String, Object> model,
+			@Valid @ModelAttribute("passwordDto") ChangePasswordDto passwordDto, BindingResult result) {
 		String username = passwordDto.getUsername();
 		String password = passwordDto.getPassword();
 		String newPassword = passwordDto.getNewPassword();
@@ -185,8 +188,7 @@ public class SecurityController {
 		Member member = memberRepository.findByUsername(username);
 		BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
 
-		if (StringUtils.hasLength(password) &&
-			!bCryptPasswordEncoder.matches(password,member.getPassword())) {
+		if (StringUtils.hasLength(password) && !bCryptPasswordEncoder.matches(password, member.getPassword())) {
 			result.rejectValue("password", "notVerified", "wrong password");
 		}
 
@@ -195,7 +197,7 @@ public class SecurityController {
 		}
 
 		memberRepository.changePassword(bCryptPasswordEncoder.encode(newPassword), member.getId());
-		model.put("member",member);
+		model.put("member", member);
 		return "security/profile";
 	}
 

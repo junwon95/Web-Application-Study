@@ -19,14 +19,14 @@ public class VerificationDto {
 
 	private Roles role;
 
-	public void setMember(Member member){
+	public void setMember(Member member) {
 		this.username = member.getUsername();
 		this.password = member.getPassword();
 		this.email = member.getEmail();
 		this.role = member.getRole();
 	}
 
-	public Member getMember(){
+	public Member getMember() {
 		Member member = new Member();
 		member.setUsername(this.username);
 		member.setPassword(this.password);

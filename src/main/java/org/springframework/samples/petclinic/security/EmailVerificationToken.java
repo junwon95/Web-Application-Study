@@ -8,11 +8,17 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @Getter
 @Setter
 public class EmailVerificationToken {
+
 	String value;
+
 	BCryptPasswordEncoder bCryptPasswordEncoder;
-	EmailVerificationToken(){}
-	EmailVerificationToken(Member member){
+
+	EmailVerificationToken() {
+	}
+
+	EmailVerificationToken(Member member) {
 		this.bCryptPasswordEncoder = new BCryptPasswordEncoder();
 		value = this.bCryptPasswordEncoder.encode(member.getEmail());
 	}
+
 }
