@@ -26,8 +26,11 @@ public class MemberValidator implements Validator {
 		}
 
 		// email validation
-		if (!email.matches("\\S+@\\S+\\.\\S+")) {
-			errors.rejectValue("email", "not a valid address", "not a valid address");
+		if (!StringUtils.hasLength(email)) {
+			errors.rejectValue("email", REQUIRED, REQUIRED);
+		}
+		else if (!email.matches("\\S+@\\S+\\.\\S+")) {
+			errors.rejectValue("email", "notValid", "not a valid address");
 		}
 	}
 

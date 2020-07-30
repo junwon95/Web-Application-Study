@@ -15,10 +15,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.WebDataBinder;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.InitBinder;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.Map;
@@ -41,8 +38,13 @@ public class SecurityController {
 	}
 
 	@InitBinder("member")
-	public void initPetBinder(WebDataBinder dataBinder) {
+	public void initMemberBinder(WebDataBinder dataBinder) {
 		dataBinder.setValidator(new MemberValidator());
+	}
+
+	@InitBinder("passwordDto")
+	public void initPasswordBinder(WebDataBinder dataBinder) {
+		dataBinder.setValidator(new PasswordValidator());
 	}
 
 	@GetMapping("/signin")
@@ -163,7 +165,6 @@ public class SecurityController {
 			return "redirect:";
 		}
 
-
 	}
 
 	@GetMapping("/changePassword")
@@ -176,7 +177,7 @@ public class SecurityController {
 	}
 
 	@PostMapping("/changePassword")
-	public String postChangePasswordForm(Map<String, Object> model, ChangePasswordDto passwordDto, BindingResult result) {
+	public String postChangePasswordForm(Map<String, Object> model, @Valid @ModelAttribute("passwordDto") ChangePasswordDto passwordDto, BindingResult result) {
 		String username = passwordDto.getUsername();
 		String password = passwordDto.getPassword();
 		String newPassword = passwordDto.getNewPassword();
@@ -184,12 +185,9 @@ public class SecurityController {
 		Member member = memberRepository.findByUsername(username);
 		BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
 
-		if (!bCryptPasswordEncoder.matches(password,member.getPassword())) {
-			result.rejectValue("email", "notVerified", "wrong password");
-		}
-
-		if(!StringUtils.hasLength(newPassword)){
-			result.rejectValue("email", "required", "is required");
+		if (StringUtils.hasLength(password) &&
+			!bCryptPasswordEncoder.matches(password,member.getPassword())) {
+			result.rejectValue("password", "notVerified", "wrong password");
 		}
 
 		if (result.hasErrors()) {

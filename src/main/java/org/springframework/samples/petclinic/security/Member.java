@@ -3,7 +3,6 @@ package org.springframework.samples.petclinic.security;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import org.springframework.context.annotation.EnableAspectJAutoProxy;
 
 import javax.persistence.*;
 
