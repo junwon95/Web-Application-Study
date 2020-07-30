@@ -31,7 +31,7 @@ On the username: / password: of
 ```
 src/main/resources/application.yml
 ```
-fill in your email account and password.
+fill in your gmail account and password.
 
 ## Working with Petclinic in your IDE
 
