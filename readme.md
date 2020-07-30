@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # Spring PetClinic Sample Application
 Base sample code from: https://github.com/spring-projects/spring-petclinic.git
 
