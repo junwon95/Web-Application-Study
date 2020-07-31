@@ -164,6 +164,7 @@ public class SecurityController {
 		// OAUTH member
 		else {
 			// TODO: link OAUTH with Members
+			// redirect to custon
 			return "redirect:";
 		}
 
