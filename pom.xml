@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xmlns="http://maven.apache.org/POM/4.0.0"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+         xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="https://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.springframework.samples</groupId>
   <artifactId>spring-petclinic</artifactId>
@@ -35,7 +35,7 @@
   <dependencies>
     <!-- Spring and Spring Boot dependencies -->
 
-<!--    spring security dependencies-->
+    <!--    spring security dependencies-->
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-security</artifactId>
@@ -46,7 +46,7 @@
       <scope>test</scope>
     </dependency>
 
-<!--    dependency to check login status from html Thymeleaf-->
+    <!--    dependency to check login status from html Thymeleaf-->
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-taglibs</artifactId>
@@ -58,7 +58,7 @@
       <version>3.0.4.RELEASE</version>
     </dependency>
 
-<!--    OAUTH 2.0 -->
+    <!--    OAUTH 2.0 -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-oauth2-client</artifactId>
@@ -93,12 +93,12 @@
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-test</artifactId>
       <scope>test</scope>
-        <exclusions>
-            <exclusion>
-                <groupId>org.junit.vintage</groupId>
-                <artifactId>junit-vintage-engine</artifactId>
-            </exclusion>
-        </exclusions>
+      <exclusions>
+        <exclusion>
+          <groupId>org.junit.vintage</groupId>
+          <artifactId>junit-vintage-engine</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
 
     <!-- Databases - Uses H2 by default -->
@@ -170,15 +170,15 @@
       <artifactId>spring-boot-devtools</artifactId>
       <optional>true</optional>
     </dependency>
-      <dependency>
-          <groupId>org.assertj</groupId>
-          <artifactId>assertj-core</artifactId>
-      </dependency>
+    <dependency>
+      <groupId>org.assertj</groupId>
+      <artifactId>assertj-core</artifactId>
+    </dependency>
   </dependencies>
 
   <build>
     <plugins>
-<!--      heroku plugin-->
+      <!--      heroku plugin-->
       <plugin>
         <groupId>com.heroku.sdk</groupId>
         <artifactId>heroku-maven-plugin</artifactId>
@@ -208,28 +208,28 @@
             <artifactId>checkstyle</artifactId>
             <version>8.29</version>
           </dependency>
-          <dependency>
-            <groupId>io.spring.nohttp</groupId>
-            <artifactId>nohttp-checkstyle</artifactId>
-            <version>${nohttp-checkstyle.version}</version>
-          </dependency>
+          <!--          <dependency>-->
+          <!--            <groupId>io.spring.nohttp</groupId>-->
+          <!--            <artifactId>nohttp-checkstyle</artifactId>-->
+          <!--            <version>${nohttp-checkstyle.version}</version>-->
+          <!--          </dependency>-->
         </dependencies>
         <executions>
-          <execution>
-            <id>nohttp-checkstyle-validation</id>
-            <phase>validate</phase>
-            <configuration>
-              <configLocation>src/checkstyle/nohttp-checkstyle.xml</configLocation>
-              <suppressionsLocation>src/checkstyle/nohttp-checkstyle-suppressions.xml</suppressionsLocation>
-              <encoding>UTF-8</encoding>
-              <sourceDirectories>${basedir}</sourceDirectories>
-              <includes>**/*</includes>
-              <excludes>**/.git/**/*,**/.idea/**/*,**/target/**/,**/.flattened-pom.xml,**/*.class</excludes>
-            </configuration>
-            <goals>
-              <goal>check</goal>
-            </goals>
-          </execution>
+          <!--          <execution>-->
+          <!--            <id>nohttp-checkstyle-validation</id>-->
+          <!--            <phase>validate</phase>-->
+          <!--            <configuration>-->
+          <!--              <configLocation>src/checkstyle/nohttp-checkstyle.xml</configLocation>-->
+          <!--              <suppressionsLocation>src/checkstyle/nohttp-checkstyle-suppressions.xml</suppressionsLocation>-->
+          <!--              <encoding>UTF-8</encoding>-->
+          <!--              <sourceDirectories>${basedir}</sourceDirectories>-->
+          <!--              <includes>**/*</includes>-->
+          <!--              <excludes>**/.git/**/*,**/.idea/**/*,**/target/**/,**/.flattened-pom.xml,**/*.class</excludes>-->
+          <!--            </configuration>-->
+          <!--            <goals>-->
+          <!--              <goal>check</goal>-->
+          <!--            </goals>-->
+          <!--          </execution>-->
         </executions>
       </plugin>
       <plugin>
