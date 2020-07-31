@@ -7,9 +7,6 @@
   <artifactId>spring-petclinic</artifactId>
   <version>2.3.1.BUILD-SNAPSHOT</version>
 
-  <configuration>
-    <appName>junwon-petclinic</appName>
-  </configuration>
 
   <parent>
     <groupId>org.springframework.boot</groupId>
