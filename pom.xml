@@ -35,7 +35,7 @@
   <dependencies>
     <!-- Spring and Spring Boot dependencies -->
 
-<!--    spring security dependencies-->
+    <!--    spring security dependencies-->
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-security</artifactId>
@@ -46,7 +46,7 @@
       <scope>test</scope>
     </dependency>
 
-<!--    dependency to check login status from html Thymeleaf-->
+    <!--    dependency to check login status from html Thymeleaf-->
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-taglibs</artifactId>
@@ -58,7 +58,7 @@
       <version>3.0.4.RELEASE</version>
     </dependency>
 
-<!--    OAUTH 2.0 -->
+    <!--    OAUTH 2.0 -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-oauth2-client</artifactId>
@@ -93,12 +93,12 @@
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-test</artifactId>
       <scope>test</scope>
-        <exclusions>
-            <exclusion>
-                <groupId>org.junit.vintage</groupId>
-                <artifactId>junit-vintage-engine</artifactId>
-            </exclusion>
-        </exclusions>
+      <exclusions>
+        <exclusion>
+          <groupId>org.junit.vintage</groupId>
+          <artifactId>junit-vintage-engine</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
 
     <!-- Databases - Uses H2 by default -->
@@ -170,15 +170,15 @@
       <artifactId>spring-boot-devtools</artifactId>
       <optional>true</optional>
     </dependency>
-      <dependency>
-          <groupId>org.assertj</groupId>
-          <artifactId>assertj-core</artifactId>
-      </dependency>
+    <dependency>
+      <groupId>org.assertj</groupId>
+      <artifactId>assertj-core</artifactId>
+    </dependency>
   </dependencies>
 
   <build>
     <plugins>
-<!--      heroku plugin-->
+      <!--      heroku plugin-->
       <plugin>
         <groupId>com.heroku.sdk</groupId>
         <artifactId>heroku-maven-plugin</artifactId>
