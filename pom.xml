@@ -315,6 +315,16 @@
           <contextFolder>${basedir}/src/main/less</contextFolder>
         </configuration>
         <dependencies>
+<!--          Heroku postgres-->
+          <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-jdbc</artifactId>
+          </dependency>
+          <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+          </dependency>
+
           <dependency>
             <groupId>org.webjars</groupId>
             <artifactId>bootstrap</artifactId>
