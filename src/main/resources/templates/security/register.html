@@ -14,7 +14,7 @@
   </div>
   <div>
     <label> PassWord: <input class="form-control" th:field="*{password}"/> </label>
-    <p th:if="${#fields.hasErrors('password')}" class="label label-danger" th:errors="*{password}">password err</p>
+    <p th:if="${#fields.hasErrors('password')}" type="password" class="label label-danger" th:errors="*{password}">password err</p>
   </div>
   <div>
     <label> Email: <input class="form-control" th:field="*{email}"/> </label>
