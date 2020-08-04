@@ -128,7 +128,7 @@ class OwnerController {
 
 	@GetMapping("/owners/{ownerId}/edit")
 	public String initUpdateOwnerForm(@PathVariable("ownerId") int ownerId, Model model) {
-		Owner owner = this.ownerRepository.findById(ownerId);
+		Owner owner = ownerRepository.findOwnerById(ownerId);
 		model.addAttribute(owner);
 		return VIEWS_OWNER_CREATE_OR_UPDATE_FORM;
 	}
@@ -154,7 +154,7 @@ class OwnerController {
 	@GetMapping("/owners/{ownerId}")
 	public ModelAndView showOwner(@PathVariable("ownerId") int ownerId) {
 		ModelAndView mav = new ModelAndView("owners/ownerDetails");
-		Owner owner = this.ownerRepository.findById(ownerId);
+		Owner owner = ownerRepository.findOwnerById(ownerId);
 
 		for (Pet pet : owner.getPets()) {
 			pet.setVisitsInternal(visitRepository.findByPetId(pet.getId()));

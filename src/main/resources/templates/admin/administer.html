@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+
+<html xmlns:th="https://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: layout (~{::body},'administer')}">
+
+<body>
+
+<h2>Administration</h2>
+<table id="owners" class="table table-striped" th:object="${owner}">
+  <thead>
+  <tr>
+    <th style="width: 150px;">
+      <label>Name</label>
+    </th>
+    <th style="width: 200px;">
+      <label>Address</label>
+    </th>
+    <th style="width: 200px;">
+      <label>City</label>
+    </th>
+    <th style="width: 200px;">
+      <label>Telephone</label>
+    </th>
+  </thead>
+  <tbody>
+    <tr th:each="owner : ${owners}">
+      <td th:text="${owner.firstName + ' ' + owner.lastName}"/>
+      <td th:text="${owner.address}"/>
+      <td th:text="${owner.city}"/>
+      <td th:text="${owner.telephone}"/>
+    </tr>
+  </tbody>
+</table>
+<form method="GET" th:action="@{/admin/download}">
+  <button type="submit" class="btn btn-default">Download</button>
+</form>
+</body>
+</html>
