@@ -9,6 +9,8 @@ import org.springframework.samples.petclinic.security.Roles;
 @Setter
 public class VerificationDto {
 
+	private String inputCode;
+
 	private String verificationCode;
 
 	private String username;

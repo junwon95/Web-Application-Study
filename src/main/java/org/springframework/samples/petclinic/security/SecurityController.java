@@ -83,6 +83,7 @@ public class SecurityController {
 
 			VerificationDto verificationDto = new VerificationDto();
 			verificationDto.setMember(member);
+			verificationDto.setVerificationCode(emailVerificationToken.getValue());
 			model.put("verificationDto", verificationDto);
 
 			return "security/verify";
@@ -91,11 +92,10 @@ public class SecurityController {
 
 	@PostMapping("/verify")
 	public String emailVerifyForm(Map<String, Object> model, VerificationDto verificationDto, BindingResult result) {
-		BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 		String verificationCode = verificationDto.getVerificationCode();
 		Member member = verificationDto.getMember();
 
-		if (encoder.matches(member.getEmail(), verificationCode)) {
+		if (verificationCode.equals(verificationDto.getInputCode())) {
 			memberRepository.save(member);
 			return "redirect:";
 		}

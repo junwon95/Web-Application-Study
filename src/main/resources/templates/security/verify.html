@@ -12,7 +12,8 @@
 </div>
 <form th:object="${verificationDto}" th:action="@{/verify}" method="post">
   <div>
-    <label> VerificationCode: <input type="password" class="form-control" th:field="*{verificationCode}"/> </label>
+    <label> VerificationCode: <input type="password" class="form-control" th:field="*{inputCode}"/> </label>
+    <input type="hidden" class="form-control" th:field="*{verificationCode}"/>
     <input type="hidden" class="form-control" th:field="*{username}"/>
     <input type="hidden" class="form-control" th:field="*{password}"/>
     <input type="hidden" class="form-control" th:field="*{email}"/>

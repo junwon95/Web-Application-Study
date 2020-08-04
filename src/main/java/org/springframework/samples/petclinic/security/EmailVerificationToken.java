@@ -18,7 +18,7 @@ public class EmailVerificationToken {
 
 	EmailVerificationToken(Member member) {
 		this.bCryptPasswordEncoder = new BCryptPasswordEncoder();
-		value = this.bCryptPasswordEncoder.encode(member.getEmail());
+		value = this.bCryptPasswordEncoder.encode(member.getEmail()).substring(10,14);
 	}
 
 }
