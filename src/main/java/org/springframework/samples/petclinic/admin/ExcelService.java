@@ -12,14 +12,16 @@ import java.util.List;
 
 @Service
 public class ExcelService {
+
 	@Autowired
 	OwnerRepository ownerRepository;
 
 	public void save(MultipartFile file) {
-		try{
+		try {
 			List<Owner> owners = ExcelManager.excelToOwners(file.getInputStream());
 			ownerRepository.saveAll(owners);
-		} catch (IOException e) {
+		}
+		catch (IOException e) {
 			throw new RuntimeException("fail to store excel data: " + e.getMessage());
 		}
 	}
@@ -31,8 +33,8 @@ public class ExcelService {
 		return in;
 	}
 
-
 	public List<Owner> getAllOwners() {
 		return ownerRepository.findAll();
 	}
+
 }

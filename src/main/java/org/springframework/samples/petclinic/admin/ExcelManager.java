@@ -17,6 +17,7 @@ import org.springframework.samples.petclinic.owner.Owner;
 import org.springframework.web.multipart.MultipartFile;
 
 public class ExcelManager {
+
 	public static String TYPE = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
 
 	// attributes of Owner relation
@@ -58,7 +59,8 @@ public class ExcelManager {
 
 			workbook.write(out);
 			return new ByteArrayInputStream(out.toByteArray());
-		} catch (IOException e) {
+		}
+		catch (IOException e) {
 			throw new RuntimeException("fail to import data to Excel file: " + e.getMessage());
 		}
 	}
@@ -92,26 +94,26 @@ public class ExcelManager {
 					Cell currentCell = cellsInRow.next();
 					// get value from each cell of row and set to table
 					switch (cellIdx) {
-						case 0:
-							owner.setId((int) Math.round(currentCell.getNumericCellValue()));
-							break;
-						case 1:
-							owner.setFirstName(currentCell.getStringCellValue());
-							break;
-						case 2:
-							owner.setLastName(currentCell.getStringCellValue());
-							break;
-						case 3:
-							owner.setAddress(currentCell.getStringCellValue());
-							break;
-						case 4:
-							owner.setCity(currentCell.getStringCellValue());
-							break;
-						case 5:
-							owner.setTelephone(currentCell.getStringCellValue());
-							break;
-						default:
-							break;
+					case 0:
+						owner.setId((int) Math.round(currentCell.getNumericCellValue()));
+						break;
+					case 1:
+						owner.setFirstName(currentCell.getStringCellValue());
+						break;
+					case 2:
+						owner.setLastName(currentCell.getStringCellValue());
+						break;
+					case 3:
+						owner.setAddress(currentCell.getStringCellValue());
+						break;
+					case 4:
+						owner.setCity(currentCell.getStringCellValue());
+						break;
+					case 5:
+						owner.setTelephone(currentCell.getStringCellValue());
+						break;
+					default:
+						break;
 					}
 					cellIdx++;
 				}
@@ -119,8 +121,10 @@ public class ExcelManager {
 			}
 			workbook.close();
 			return owners;
-		} catch (IOException e) {
+		}
+		catch (IOException e) {
 			throw new RuntimeException("fail to parse Excel file: " + e.getMessage());
 		}
 	}
+
 }

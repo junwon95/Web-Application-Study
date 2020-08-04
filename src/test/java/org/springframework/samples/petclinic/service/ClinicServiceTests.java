@@ -90,14 +90,14 @@ class ClinicServiceTests {
 		assertThat(owners).isEmpty();
 	}
 
-//	@Test
-//	void shouldFindSingleOwnerWithPet() {
-//		Owner owner = this.owners.findOwnerById(1);
-//		assertThat(owner.getLastName()).startsWith("Franklin");
-//		assertThat(owner.getPets()).hasSize(1);
-//		assertThat(owner.getPets().get(0).getType()).isNotNull();
-//		assertThat(owner.getPets().get(0).getType().getName()).isEqualTo("cat");
-//	}
+	// @Test
+	// void shouldFindSingleOwnerWithPet() {
+	// Owner owner = this.owners.findOwnerById(1);
+	// assertThat(owner.getLastName()).startsWith("Franklin");
+	// assertThat(owner.getPets()).hasSize(1);
+	// assertThat(owner.getPets().get(0).getType()).isNotNull();
+	// assertThat(owner.getPets().get(0).getType().getName()).isEqualTo("cat");
+	// }
 
 	@Test
 	@Transactional

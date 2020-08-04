@@ -33,10 +33,8 @@ class AdminController {
 		String filename = "ownerData.xlsx";
 		InputStreamResource file = new InputStreamResource(excelService.load());
 
-		return ResponseEntity.ok()
-			.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + filename)
-			.contentType(MediaType.parseMediaType("application/vnd.ms-excel"))
-			.body(file);
+		return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + filename)
+				.contentType(MediaType.parseMediaType("application/vnd.ms-excel")).body(file);
 	}
 
 	// TODO: PASS excel file as param
@@ -51,6 +49,5 @@ class AdminController {
 		// no file err
 		return "";
 	}
-
 
 }
