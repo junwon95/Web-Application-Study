@@ -66,3 +66,13 @@ CREATE TABLE IF NOT EXISTS members (
   email VARCHAR(30) NOT NULL,
   role_name VARCHAR(30) NOT NULL
 );
+
+SELECT setval(pg_get_serial_sequence('vets', 'id'), coalesce(max(id),0) + 1, false) FROM vets;
+SELECT setval(pg_get_serial_sequence('specialties', 'id'), coalesce(max(id),0) + 1, false) FROM specialties;
+SELECT setval(pg_get_serial_sequence('types', 'id'), coalesce(max(id),0) + 1, false) FROM types;
+SELECT setval(pg_get_serial_sequence('owners', 'id'), coalesce(max(id),0) + 1, false) FROM owners;
+SELECT setval(pg_get_serial_sequence('pets', 'id'), coalesce(max(id),0) + 1, false) FROM pets;
+SELECT setval(pg_get_serial_sequence('visits', 'id'), coalesce(max(id),0) + 1, false) FROM visits;
+SELECT setval(pg_get_serial_sequence('treatments', 'id'), coalesce(max(id),0) + 1, false) FROM treatments;
+SELECT setval(pg_get_serial_sequence('members', 'id'), coalesce(max(id),0) + 1, false) FROM members;
+
