@@ -31,8 +31,16 @@
     </tr>
   </tbody>
 </table>
-<form method="GET" th:action="@{/admin/download}">
-  <button type="submit" class="btn btn-default">Download</button>
-</form>
+<div>
+  <form method="post" th:action="@{/admin/upload}" enctype="multipart/form-data">
+  <input type="file" th:name="file" />
+  <input class="btn btn-default" th:type="submit" value="Upload" />
+  </form>
+  <br/>
+  <form method="GET" th:action="@{/admin/download}">
+    <button type="submit" class="btn btn-default">Download</button>
+  </form>
+</div>
+
 </body>
 </html>

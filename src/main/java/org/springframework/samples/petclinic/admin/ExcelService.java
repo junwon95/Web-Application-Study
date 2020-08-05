@@ -3,6 +3,8 @@ package org.springframework.samples.petclinic.admin;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.samples.petclinic.owner.Owner;
 import org.springframework.samples.petclinic.owner.OwnerRepository;
+import org.springframework.samples.petclinic.owner.PetRepository;
+import org.springframework.samples.petclinic.visit.VisitRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -29,7 +31,9 @@ public class ExcelService {
 	public ByteArrayInputStream load() {
 		List<Owner> owners = ownerRepository.findAll();
 
-		ByteArrayInputStream in = ExcelManager.ownersToExcel(owners);
+//		ByteArrayInputStream in = ExcelManager.ownersToExcel(owners);
+		ByteArrayInputStream in = ExcelManager.dataToExcel();
+
 		return in;
 	}
 
