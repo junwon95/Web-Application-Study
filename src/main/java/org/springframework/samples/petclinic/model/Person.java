@@ -17,6 +17,7 @@ package org.springframework.samples.petclinic.model;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.samples.petclinic.admin.Administer;
 
 import javax.persistence.Column;
 import javax.persistence.MappedSuperclass;
@@ -32,10 +33,12 @@ import javax.validation.constraints.NotEmpty;
 @MappedSuperclass
 public class Person extends BaseEntity {
 
+	@Administer
 	@Column(name = "first_name")
 	@NotEmpty
 	private String firstName;
 
+	@Administer
 	@Column(name = "last_name")
 	@NotEmpty
 	private String lastName;

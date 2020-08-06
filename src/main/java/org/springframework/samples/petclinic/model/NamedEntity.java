@@ -17,6 +17,7 @@ package org.springframework.samples.petclinic.model;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.samples.petclinic.admin.Administer;
 
 import javax.persistence.Column;
 import javax.persistence.MappedSuperclass;
@@ -33,6 +34,7 @@ import javax.persistence.MappedSuperclass;
 @MappedSuperclass
 public class NamedEntity extends BaseEntity {
 
+	@Administer
 	@Column(name = "name")
 	private String name;
 

@@ -21,11 +21,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
+import javax.persistence.*;
 import javax.validation.constraints.Digits;
 import javax.validation.constraints.NotEmpty;
 
@@ -34,6 +30,7 @@ import lombok.Setter;
 import org.springframework.beans.support.MutableSortDefinition;
 import org.springframework.beans.support.PropertyComparator;
 import org.springframework.core.style.ToStringCreator;
+import org.springframework.samples.petclinic.admin.Administer;
 import org.springframework.samples.petclinic.model.Person;
 
 /**
@@ -50,20 +47,24 @@ import org.springframework.samples.petclinic.model.Person;
 @Table(name = "owners")
 public class Owner extends Person {
 
+	@Administer
 	@Column(name = "address")
 	@NotEmpty
 	private String address;
 
+	@Administer
 	@Column(name = "city")
 	@NotEmpty
 	private String city;
 
+	@Administer
 	@Column(name = "telephone")
 	@NotEmpty
 	@Digits(fraction = 0, integer = 10)
 	private String telephone;
 
-	@OneToMany(cascade = CascadeType.ALL, mappedBy = "owner")
+	// EAGERLY FETCH PETS
+	@OneToMany(cascade = CascadeType.ALL, mappedBy = "owner", fetch = FetchType.EAGER)
 	private Set<Pet> pets;
 
 	protected Set<Pet> getPetsInternal() {

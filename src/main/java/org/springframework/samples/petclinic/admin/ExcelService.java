@@ -6,6 +6,7 @@ import org.springframework.samples.petclinic.owner.OwnerRepository;
 import org.springframework.samples.petclinic.owner.PetRepository;
 import org.springframework.samples.petclinic.visit.VisitRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayInputStream;
@@ -31,14 +32,10 @@ public class ExcelService {
 	public ByteArrayInputStream load() {
 		List<Owner> owners = ownerRepository.findAll();
 
-//		ByteArrayInputStream in = ExcelManager.ownersToExcel(owners);
-		ByteArrayInputStream in = ExcelManager.dataToExcel();
+		ByteArrayInputStream in = ExcelManager.dataToExcel(owners);
 
 		return in;
 	}
 
-	public List<Owner> getAllOwners() {
-		return ownerRepository.findAll();
-	}
 
 }

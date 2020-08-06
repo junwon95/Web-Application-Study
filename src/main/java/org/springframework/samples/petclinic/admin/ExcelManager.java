@@ -1,10 +1,14 @@
 package org.springframework.samples.petclinic.admin;
 
+import java.beans.IntrospectionException;
+import java.beans.PropertyDescriptor;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -12,12 +16,14 @@ import java.util.List;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.hibernate.jdbc.Work;
 import org.springframework.samples.petclinic.owner.Owner;
-import org.springframework.samples.petclinic.owner.OwnerRepository;
+import org.springframework.samples.petclinic.owner.Pet;
 import org.springframework.web.multipart.MultipartFile;
 
 public class ExcelManager {
 
+	static final String APPLICATION_NAME = "org.springframework.samples.petclinic";
 	public static String TYPE = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
 
 	// attributes of Owner relation
@@ -138,12 +144,11 @@ public class ExcelManager {
 
 	// ------------ Current TODO
 
-	static String[] ENTITY_NAMES = {"Owner", "Pet"};
-	static String[] OWNER_FIELDS = {"id", "firstName", "lastName", "address", "city", "telephone"};
-	static String[] PET_FIELDS = {"name", "birth_date", "type"};
+	static String[] ENTITY_NAMES = {"owner.Owner", "owner.Pet"};
+
 	// ALL DATA DOWNLOAD
-	public static ByteArrayInputStream dataToExcel() {
-		try (Workbook workbook = new XSSFWorkbook(); ByteArrayOutputStream out = new ByteArrayOutputStream();) {
+	public static ByteArrayInputStream dataToExcel(List<Owner> owners) {
+		try (Workbook workbook = new XSSFWorkbook(); ByteArrayOutputStream out = new ByteArrayOutputStream()) {
 
 			// SHEET
 			Sheet sheet = workbook.createSheet("dataBaseInstance");
@@ -152,11 +157,11 @@ public class ExcelManager {
 
 			// HEADER
 			// retrieve field names of each entity
-			List<String[]> allFields = getFields();
-			headerFormatter(sheet, allFields);
+			List<List<String>> allFields = getAdministerFields(ENTITY_NAMES);
+			headerFormatter(sheet, allFields, workbook);
 
 			// TODO: Data
-			dataFormatter(sheet);
+			dataFormatter(sheet, owners, allFields, workbook);
 
 			// add filter
 //			sheet.setAutoFilter(new CellRangeAddress(1, 1, 0, columnLength));
@@ -164,41 +169,133 @@ public class ExcelManager {
 			workbook.write(out);
 			return new ByteArrayInputStream(out.toByteArray());
 		}
-		catch (IOException | ClassNotFoundException e) {
+		catch (IOException | ClassNotFoundException | IntrospectionException | InvocationTargetException | IllegalAccessException e) {
 			throw new RuntimeException("fail to import data to Excel file: " + e.getMessage());
 		}
 	}
 
-	public static List<String[]> getFields() {
-		// get list consisting of list of field names
-		List<String[]> attributes = new ArrayList<>();
-		attributes.add(OWNER_FIELDS);
-		attributes.add(PET_FIELDS);
 
-		return attributes;
+	/**
+	 *
+	 * @param ENTITY_NAMES
+	 * @return allFields
+	 * returns all fields annotated with @Administer including the fields of parent classes.
+	 * searches recursively until field "id" is found.
+	 *
+	 * @throws ClassNotFoundException
+	 *
+	 */
+	public static List<List<String>> getAdministerFields(String[] ENTITY_NAMES) throws ClassNotFoundException {
+		List<List<String>> allFields = new ArrayList<>();
+
+		for (String name : ENTITY_NAMES){
+			List<String> fields = new ArrayList<>();
+
+			Class clazz = Class.forName(APPLICATION_NAME + '.' + name);
+
+			while(true){
+				List<String> tmp = new ArrayList<>();
+				for (Field field : clazz.getDeclaredFields()) {
+					if (field.isAnnotationPresent(Administer.class)) {
+						tmp.add(field.getName());
+					}
+				}
+				// add to front to maintain order of fields
+				fields.addAll(0,tmp);
+
+				//
+				if(fields.get(0).equals("id")) break;
+				else clazz = clazz.getSuperclass();
+			}
+
+			allFields.add(fields);
+		}
+
+		return allFields;
 	}
 
-	public static void headerFormatter(Sheet sheet, List<String[]> allFields) {
+	public static void headerFormatter(Sheet sheet, List<List<String>> allFields, Workbook workbook) {
 
 		Row tableRow = sheet.createRow(0);
 		Row attributeRow = sheet.createRow(1);
 		int firstCol, lastCol = 0;
-		int attributeIdx = 0;
-		for (String[] fields : allFields) {
+		int entityIdx = 0;
+		for (List<String> fields : allFields) {
 			// name attribute cells
 			firstCol = lastCol;
 			for(String f : fields){
 				Cell cell = attributeRow.createCell(lastCol++);
 				cell.setCellValue(f);
+				cellStyler(cell, workbook);
 			}
 			// name and merge table header cells
 			Cell cell = tableRow.createCell(firstCol);
-			cell.setCellValue(ENTITY_NAMES[attributeIdx++]);
+			cell.setCellValue(ENTITY_NAMES[entityIdx++]);
 			sheet.addMergedRegion(new CellRangeAddress(0,0, firstCol, lastCol-1));
+			cellStyler(cell, workbook);
 		}
 	}
 
-	public static void dataFormatter(Sheet sheet){
+	public static void dataFormatter(Sheet sheet, List<Owner> owners, List<List<String>> allFields, Workbook workbook)
+		throws IntrospectionException, InvocationTargetException, IllegalAccessException {
 
+		int entityIdx = 0;
+		int rowIdx = 2;
+		int colIdx = 0;
+
+		for(Owner owner : owners){
+			int startRow = rowIdx;
+			Row row = sheet.createRow(rowIdx);
+			colIdx = makeCells(row, colIdx, owner, allFields.get(entityIdx), workbook);
+
+			entityIdx++;
+			for(Pet pet : owner.getPets()){
+				makeCells(row, colIdx, pet, allFields.get(entityIdx), workbook);
+				row = sheet.createRow(++rowIdx);
+			}
+			entityIdx--;
+
+			if(rowIdx-1 > startRow){
+				for(int i = 0; i < colIdx; i++)
+					sheet.addMergedRegion(new CellRangeAddress(startRow,rowIdx-1, i, i));
+			}
+
+			colIdx = 0;
+		}
 	}
+
+	public static int makeCells(Row row, int colIdx, Object object, List<String> fields, Workbook workbook)
+		throws IntrospectionException, InvocationTargetException, IllegalAccessException {
+
+		Class clazz = object.getClass();
+
+		for(String field : fields){
+			PropertyDescriptor pd = new PropertyDescriptor(field, clazz);
+			Method method = pd.getReadMethod();
+
+			Cell cell = row.createCell(colIdx++);
+			if (field.equals("id")){
+				cell.setCellValue((int)method.invoke(object));
+			}
+			else{
+				cell.setCellValue(method.invoke(object).toString());
+			}
+		}
+
+		return colIdx;
+	}
+
+	public static void cellStyler(Cell cell, Workbook workbook){
+		CellStyle style = workbook.createCellStyle();
+		style.setBorderBottom(BorderStyle.MEDIUM);
+		style.setBottomBorderColor(IndexedColors.BLACK.getIndex());
+		style.setBorderLeft(BorderStyle.MEDIUM);
+		style.setLeftBorderColor(IndexedColors.BLACK.getIndex());
+		style.setBorderRight(BorderStyle.MEDIUM);
+		style.setRightBorderColor(IndexedColors.BLACK.getIndex());
+		style.setBorderTop(BorderStyle.MEDIUM);
+		style.setTopBorderColor(IndexedColors.BLACK.getIndex());
+		cell.setCellStyle(style);
+	}
+
 }

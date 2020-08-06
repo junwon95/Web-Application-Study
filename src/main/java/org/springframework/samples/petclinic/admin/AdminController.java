@@ -29,7 +29,7 @@ class AdminController {
 	}
 
 	@GetMapping("/admin/download")
-	public ResponseEntity<Resource> getFile() {
+	public ResponseEntity<Resource> downloadFile() {
 		String filename = "ownerData.xlsx";
 		InputStreamResource file = new InputStreamResource(excelService.load());
 
@@ -37,7 +37,6 @@ class AdminController {
 				.contentType(MediaType.parseMediaType("application/vnd.ms-excel")).body(file);
 	}
 
-	// TODO: PASS excel file as param
 	@PostMapping("/admin/upload")
 	public String uploadFile(@RequestParam("file") MultipartFile file) {
 		String message = "";

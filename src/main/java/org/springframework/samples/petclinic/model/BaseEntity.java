@@ -15,7 +15,13 @@
  */
 package org.springframework.samples.petclinic.model;
 
+import org.springframework.samples.petclinic.admin.Administer;
+
 import java.io.Serializable;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 import javax.persistence.*;
 
@@ -29,6 +35,7 @@ import javax.persistence.*;
 @MappedSuperclass
 public class BaseEntity implements Serializable {
 
+	@Administer
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(columnDefinition = "serial")
