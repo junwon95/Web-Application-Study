@@ -37,6 +37,7 @@ import org.springframework.beans.support.MutableSortDefinition;
 import org.springframework.beans.support.PropertyComparator;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.samples.petclinic.admin.Administer;
+import org.springframework.samples.petclinic.admin.ReferencedBy;
 import org.springframework.samples.petclinic.model.NamedEntity;
 import org.springframework.samples.petclinic.visit.Visit;
 
@@ -67,6 +68,7 @@ public class Pet extends NamedEntity {
 	@JoinColumn(name = "owner_id")
 	private Owner owner;
 
+	@ReferencedBy
 	@Transient
 	private Set<Visit> visits = new LinkedHashSet<>();
 

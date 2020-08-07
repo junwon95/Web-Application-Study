@@ -11,6 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -32,7 +33,7 @@ public class ExcelService {
 	public ByteArrayInputStream load() {
 		List<Owner> owners = ownerRepository.findAll();
 
-		ByteArrayInputStream in = ExcelManager.dataToExcel(owners);
+		ByteArrayInputStream in = ExcelManager2.dataToExcel(Collections.singletonList(owners));
 
 		return in;
 	}

@@ -27,56 +27,10 @@ public class ExcelManager {
 	public static String TYPE = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
 
 	// attributes of Owner relation
-	static String[] HEADERs = { "id", "firstName", "lastName", "address", "city", "telephone" };
 	static String SHEET = "AdministrationData";
 
 	public static boolean hasExcelFormat(MultipartFile file) {
-		if (!TYPE.equals(file.getContentType())) {
-			return false;
-		}
-		return true;
-	}
-
-	// DOWNLOAD
-	public static ByteArrayInputStream ownersToExcel(List<Owner> owners) {
-
-		try (Workbook workbook = new XSSFWorkbook(); ByteArrayOutputStream out = new ByteArrayOutputStream();) {
-			Sheet sheet = workbook.createSheet(SHEET);
-			sheet.setAutoFilter(new CellRangeAddress(0, 0, 0, HEADERs.length));
-			sheet.createFreezePane(0, 1);
-
-			// Header
-			Row headerRow = sheet.createRow(0);
-
-			for (int col = 0; col < HEADERs.length; col++) {
-				Cell cell = headerRow.createCell(col);
-				cell.setCellValue(HEADERs[col]);
-			}
-
-			// Data
-			CellStyle unlockedCellStyle = workbook.createCellStyle();
-			unlockedCellStyle.setLocked(false);
-
-			int rowIdx = 1;
-			for (Owner owner : owners) {
-				Row row = sheet.createRow(rowIdx++);
-
-				row.createCell(0).setCellValue(owner.getId());
-				row.createCell(1).setCellValue(owner.getFirstName());
-				row.createCell(2).setCellValue(owner.getLastName());
-				row.createCell(3).setCellValue(owner.getAddress());
-				row.createCell(4).setCellValue(owner.getCity());
-				row.createCell(5).setCellValue(owner.getTelephone());
-
-				row.setRowStyle(unlockedCellStyle);
-			}
-
-			workbook.write(out);
-			return new ByteArrayInputStream(out.toByteArray());
-		}
-		catch (IOException e) {
-			throw new RuntimeException("fail to import data to Excel file: " + e.getMessage());
-		}
+		return TYPE.equals(file.getContentType());
 	}
 
 	// UPLOAD
@@ -141,9 +95,6 @@ public class ExcelManager {
 		}
 	}
 
-
-	// ------------ Current TODO
-
 	static String[] ENTITY_NAMES = {"owner.Owner", "owner.Pet"};
 
 	// ALL DATA DOWNLOAD
@@ -156,11 +107,10 @@ public class ExcelManager {
 			sheet.createFreezePane(3, 3);
 
 			// HEADER
-			// retrieve field names of each entity
 			List<List<String>> allFields = getAdministerFields(ENTITY_NAMES);
 			headerFormatter(sheet, allFields, workbook);
 
-			// TODO: Data
+			// DATA
 			dataFormatter(sheet, owners, allFields, workbook);
 
 			// autosize columns to fit text
@@ -171,9 +121,7 @@ public class ExcelManager {
 				}
 			}
 
-			// add filter
-//			sheet.setAutoFilter(new CellRangeAddress(1, 1, 0, columnLength));
-
+			// write
 			workbook.write(out);
 			return new ByteArrayInputStream(out.toByteArray());
 		}
@@ -181,7 +129,6 @@ public class ExcelManager {
 			throw new RuntimeException("fail to import data to Excel file: " + e.getMessage());
 		}
 	}
-
 
 	/**
 	 *
@@ -319,7 +266,6 @@ public class ExcelManager {
 		return colIdx;
 	}
 
-
 	public static CellStyle style(int type, Workbook workbook){
 		CellStyle style = workbook.createCellStyle();
 		switch(type){
@@ -346,4 +292,5 @@ public class ExcelManager {
 		}
 		return style;
 	}
+
 }
