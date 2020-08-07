@@ -31,6 +31,8 @@ import org.springframework.beans.support.MutableSortDefinition;
 import org.springframework.beans.support.PropertyComparator;
 import org.springframework.core.style.ToStringCreator;
 import org.springframework.samples.petclinic.admin.Administer;
+import org.springframework.samples.petclinic.admin.LinkedEntityGetter;
+import org.springframework.samples.petclinic.admin.ReferencedBy;
 import org.springframework.samples.petclinic.model.Person;
 
 /**
@@ -63,7 +65,9 @@ public class Owner extends Person {
 	@Digits(fraction = 0, integer = 10)
 	private String telephone;
 
+
 	// EAGERLY FETCH PETS
+	@ReferencedBy
 	@OneToMany(cascade = CascadeType.ALL, mappedBy = "owner", fetch = FetchType.EAGER)
 	private Set<Pet> pets;
 
@@ -74,10 +78,11 @@ public class Owner extends Person {
 		return this.pets;
 	}
 
-	protected void setPetsInternal(Set<Pet> pets) {
+	protected void setPets(Set<Pet> pets) {
 		this.pets = pets;
 	}
 
+	@LinkedEntityGetter
 	public List<Pet> getPets() {
 		List<Pet> sortedPets = new ArrayList<>(getPetsInternal());
 		PropertyComparator.sort(sortedPets, new MutableSortDefinition("name", true, true));

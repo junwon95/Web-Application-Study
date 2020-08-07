@@ -5,20 +5,16 @@ import java.beans.PropertyDescriptor;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
+import org.apache.poi.common.usermodel.HyperlinkType;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
-import org.apache.poi.ss.util.CellUtil;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.springframework.samples.petclinic.owner.Owner;
-import org.springframework.samples.petclinic.owner.Pet;
 import org.springframework.web.multipart.MultipartFile;
 
 public class ExcelManager2 {
@@ -31,17 +27,15 @@ public class ExcelManager2 {
 	}
 
 	// ALL DATA DOWNLOAD
-	public static ByteArrayInputStream dataToExcel(List<Object> objects) {
+	public static ByteArrayInputStream dataToExcel(List entity) {
 		try (Workbook workbook = new XSSFWorkbook(); ByteArrayOutputStream out = new ByteArrayOutputStream()) {
 
-			// create main sheet
-			Sheet mainSheet = workbook.createSheet();
-
+			sheetFormatter(workbook, entity);
 			// write
 			workbook.write(out);
 			return new ByteArrayInputStream(out.toByteArray());
 		}
-		catch (IOException e) {
+		catch (IOException | IntrospectionException | InvocationTargetException | IllegalAccessException e) {
 			throw new RuntimeException("fail to import data to Excel file: " + e.getMessage());
 		}
 	}
@@ -68,18 +62,22 @@ public class ExcelManager2 {
 
 	}
 
-	public static void sheetFormatter(Sheet sheet, List<Object> objects) throws IntrospectionException, InvocationTargetException, IllegalAccessException {
+	public static void sheetFormatter(Workbook workbook, List<Object> entity) throws IntrospectionException, InvocationTargetException, IllegalAccessException {
+
 		// get class of object
-		Class clazz = objects.get(0).getClass();
-		String entityName = clazz.getName();
+		Class clazz = entity.get(0).getClass();
+		String entityName = clazz.getName().substring(clazz.getName().lastIndexOf('.')+1);
 		List<String> fields = getAdministerFields(clazz);
+
+		// create main sheet
+		Sheet sheet = workbook.createSheet(entityName);
 
 		// relative coordinates of table
 		int ROW_SPACE = 1;
 		final int COL_SPACE = 1;
 
 		// row, col size of table
-		final int entityRowSize = objects.size();
+		final int entityRowSize = entity.size();
 		final int entityColSize = fields.size();
 
 		// format HEADER
@@ -97,7 +95,7 @@ public class ExcelManager2 {
 		// format DATA region
 		for(int i = 0; i < entityRowSize; i++){
 			Row row = sheet.createRow(ROW_SPACE+i);
-			Object object = objects.get(i);
+			Object object = entity.get(i);
 			for(int j = 0; j < entityColSize; j++){
 				if(j == 0){
 					row.createCell(COL_SPACE).setCellValue(getId(object));
@@ -105,8 +103,27 @@ public class ExcelManager2 {
 				}
 				Cell cell = row.createCell(COL_SPACE+j);
 				cell.setCellValue(getFieldValue(object, fields.get(j)));
+				sheet.autoSizeColumn(COL_SPACE+j);
 			}
-			row.createCell(COL_SPACE+entityColSize);
+			Cell hyperlinkCell = row.createCell(COL_SPACE+entityColSize);
+
+			//get @ReferencedBy field name and create new sheet using sheetFormatter() recursively
+			String str = getReferencedField(clazz);
+			if(str.isEmpty()) continue;
+			else{
+				String referencedFieldName = str.substring(0,1).toUpperCase() + str.substring(1,str.length()-1);
+				workbook.createSheet(referencedFieldName + getId(object));
+
+				// create hyperlink
+				hyperlinkCell.setCellValue(getReferencedField(clazz));
+				Hyperlink hyperlink = workbook.getCreationHelper().createHyperlink(HyperlinkType.DOCUMENT);
+				hyperlink.setAddress(referencedFieldName + getId(object) + "!A1");
+				headerCell.setHyperlink(hyperlink);
+
+				// recursive call of sheetFormatter
+				List<Object> linkedEntity = getLinkedEntity(clazz, object);
+				sheetFormatter(workbook, linkedEntity);
+			}
 
 		}
 
@@ -130,6 +147,25 @@ public class ExcelManager2 {
 		return (String)method.invoke(object);
 	}
 
+	public static String getReferencedField(Class clazz){
+
+		for (Field field : clazz.getDeclaredFields()) {
+			if (field.isAnnotationPresent(ReferencedBy.class)) {
+				return field.getName();
+			}
+		}
+		return "";
+	}
+
+	public static List<Object> getLinkedEntity(Class clazz, Object object) throws IntrospectionException, InvocationTargetException, IllegalAccessException {
+
+		for(Method method : clazz.getDeclaredMethods()){
+			if(method.isAnnotationPresent(LinkedEntityGetter.class)) {
+				return (List<Object>) method.invoke(object);
+			}
+		}
+		return null;
+	}
 
 
 }

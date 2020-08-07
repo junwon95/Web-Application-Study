@@ -33,7 +33,7 @@ public class ExcelService {
 	public ByteArrayInputStream load() {
 		List<Owner> owners = ownerRepository.findAll();
 
-		ByteArrayInputStream in = ExcelManager2.dataToExcel(Collections.singletonList(owners));
+		ByteArrayInputStream in = ExcelManager2.dataToExcel(owners);
 
 		return in;
 	}
