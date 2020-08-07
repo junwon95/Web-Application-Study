@@ -15,8 +15,8 @@ import java.util.List;
 
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.ss.util.CellUtil;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.hibernate.jdbc.Work;
 import org.springframework.samples.petclinic.owner.Owner;
 import org.springframework.samples.petclinic.owner.Pet;
 import org.springframework.web.multipart.MultipartFile;
@@ -153,7 +153,7 @@ public class ExcelManager {
 			// SHEET
 			Sheet sheet = workbook.createSheet("dataBaseInstance");
 			// freeze header rows
-			sheet.createFreezePane(0, 2);
+			sheet.createFreezePane(3, 3);
 
 			// HEADER
 			// retrieve field names of each entity
@@ -162,6 +162,14 @@ public class ExcelManager {
 
 			// TODO: Data
 			dataFormatter(sheet, owners, allFields, workbook);
+
+			// autosize columns to fit text
+			int cnt = 0;
+			for(List<String> fields : allFields){
+				for(String f : fields){
+					sheet.autoSizeColumn(cnt++);
+				}
+			}
 
 			// add filter
 //			sheet.setAutoFilter(new CellRangeAddress(1, 1, 0, columnLength));
@@ -216,35 +224,39 @@ public class ExcelManager {
 
 	public static void headerFormatter(Sheet sheet, List<List<String>> allFields, Workbook workbook) {
 
-		Row tableRow = sheet.createRow(0);
-		Row attributeRow = sheet.createRow(1);
-		int firstCol, lastCol = 0;
+		Row tableRow = sheet.createRow(1);
+		Row attributeRow = sheet.createRow(2);
+		int firstCol, lastCol = 1;
 		int entityIdx = 0;
 		for (List<String> fields : allFields) {
 			// name attribute cells
 			firstCol = lastCol;
 			for(String f : fields){
-				Cell cell = attributeRow.createCell(lastCol++);
+				Cell cell = tableRow.createCell(lastCol);
+				cell.setCellStyle(style(0, workbook));
+
+				cell = attributeRow.createCell(lastCol++);
 				cell.setCellValue(f);
-				cellStyler(cell, workbook);
+				cell.setCellStyle(style(0, workbook));
 			}
 			// name and merge table header cells
-			Cell cell = tableRow.createCell(firstCol);
-			cell.setCellValue(ENTITY_NAMES[entityIdx++]);
-			sheet.addMergedRegion(new CellRangeAddress(0,0, firstCol, lastCol-1));
-			cellStyler(cell, workbook);
+			String str = ENTITY_NAMES[entityIdx++];
+			CellUtil.createCell(tableRow, firstCol, str.substring(str.indexOf('.')+1));
+			sheet.addMergedRegion(new CellRangeAddress(1,1, firstCol, lastCol-1));
 		}
+
 	}
 
 	public static void dataFormatter(Sheet sheet, List<Owner> owners, List<List<String>> allFields, Workbook workbook)
 		throws IntrospectionException, InvocationTargetException, IllegalAccessException {
 
 		int entityIdx = 0;
-		int rowIdx = 2;
-		int colIdx = 0;
+		int rowIdx = 3;
+		int colIdx = 1;
 
 		for(Owner owner : owners){
 			int startRow = rowIdx;
+
 			Row row = sheet.createRow(rowIdx);
 			colIdx = makeCells(row, colIdx, owner, allFields.get(entityIdx), workbook);
 
@@ -253,15 +265,32 @@ public class ExcelManager {
 				makeCells(row, colIdx, pet, allFields.get(entityIdx), workbook);
 				row = sheet.createRow(++rowIdx);
 			}
+			if(owner.getPets().size() == 0){
+				CellUtil.createCell(row, colIdx, "", style(1, workbook));
+				for(int i = 1; i < allFields.get(entityIdx).size()-1; i++){
+					CellUtil.createCell(row, colIdx+i, "", style(2, workbook));
+				}
+				CellUtil.createCell(row, colIdx+allFields.get(entityIdx).size()-1, "", style(3, workbook));
+			}
 			entityIdx--;
 
+			// if more than one pet
 			if(rowIdx-1 > startRow){
-				for(int i = 0; i < colIdx; i++)
+				for(int i = startRow+1; i < rowIdx; i++){
+					row = sheet.getRow(i);
+					row.createCell(1).setCellStyle(style(1, workbook));
+					for(int j = 2; j < colIdx-1; j++){
+						row.createCell(j).setCellStyle(style(2, workbook));
+					}
+					row.createCell(colIdx-1).setCellStyle(style(3, workbook));
+				}
+				for(int i = 1; i < colIdx; i++)
 					sheet.addMergedRegion(new CellRangeAddress(startRow,rowIdx-1, i, i));
 			}
 
-			colIdx = 0;
+			colIdx = 1;
 		}
+
 	}
 
 	public static int makeCells(Row row, int colIdx, Object object, List<String> fields, Workbook workbook)
@@ -269,33 +298,52 @@ public class ExcelManager {
 
 		Class clazz = object.getClass();
 
+		Cell cell = row.createCell(colIdx);
 		for(String field : fields){
 			PropertyDescriptor pd = new PropertyDescriptor(field, clazz);
 			Method method = pd.getReadMethod();
 
-			Cell cell = row.createCell(colIdx++);
+			cell = row.createCell(colIdx++);
+			cell.setCellStyle(style(2, workbook));
+
 			if (field.equals("id")){
 				cell.setCellValue((int)method.invoke(object));
+				cell.setCellStyle(style(1, workbook));
 			}
 			else{
 				cell.setCellValue(method.invoke(object).toString());
 			}
 		}
+		cell.setCellStyle(style(3, workbook));
 
 		return colIdx;
 	}
 
-	public static void cellStyler(Cell cell, Workbook workbook){
-		CellStyle style = workbook.createCellStyle();
-		style.setBorderBottom(BorderStyle.MEDIUM);
-		style.setBottomBorderColor(IndexedColors.BLACK.getIndex());
-		style.setBorderLeft(BorderStyle.MEDIUM);
-		style.setLeftBorderColor(IndexedColors.BLACK.getIndex());
-		style.setBorderRight(BorderStyle.MEDIUM);
-		style.setRightBorderColor(IndexedColors.BLACK.getIndex());
-		style.setBorderTop(BorderStyle.MEDIUM);
-		style.setTopBorderColor(IndexedColors.BLACK.getIndex());
-		cell.setCellStyle(style);
-	}
 
+	public static CellStyle style(int type, Workbook workbook){
+		CellStyle style = workbook.createCellStyle();
+		switch(type){
+			case 0:
+				style.setBorderBottom(BorderStyle.MEDIUM);
+				style.setBorderLeft(BorderStyle.MEDIUM);
+				style.setBorderRight(BorderStyle.MEDIUM);
+				style.setBorderTop(BorderStyle.MEDIUM);
+				break;
+			case 1:
+				style.setBorderBottom(BorderStyle.DASHED);
+				style.setBorderLeft(BorderStyle.MEDIUM);
+				style.setVerticalAlignment(CellStyle.VERTICAL_CENTER);
+				break;
+			case 2:
+				style.setBorderBottom(BorderStyle.DASHED);
+				style.setVerticalAlignment(CellStyle.VERTICAL_CENTER);
+				break;
+			case 3:
+				style.setBorderBottom(BorderStyle.DASHED);
+				style.setBorderRight(BorderStyle.MEDIUM);
+				style.setVerticalAlignment(CellStyle.VERTICAL_CENTER);
+				break;
+		}
+		return style;
+	}
 }
