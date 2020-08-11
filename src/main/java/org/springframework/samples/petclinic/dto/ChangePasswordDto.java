@@ -7,10 +7,10 @@ import lombok.Setter;
 @Setter
 public class ChangePasswordDto {
 
-	String username;
+	private String username;
 
-	String password;
+	private String password;
 
-	String newPassword;
+	private String newPassword;
 
 }

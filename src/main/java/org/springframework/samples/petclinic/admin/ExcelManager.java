@@ -24,6 +24,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class ExcelManager {
 
 	static final String APPLICATION_NAME = "org.springframework.samples.petclinic";
+
 	public static String TYPE = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
 
 	// attributes of Owner relation
@@ -95,7 +96,7 @@ public class ExcelManager {
 		}
 	}
 
-	static String[] ENTITY_NAMES = {"owner.Owner", "owner.Pet"};
+	static String[] ENTITY_NAMES = { "owner.Owner", "owner.Pet" };
 
 	// ALL DATA DOWNLOAD
 	public static ByteArrayInputStream dataToExcel(List<Owner> owners) {
@@ -115,8 +116,8 @@ public class ExcelManager {
 
 			// autosize columns to fit text
 			int cnt = 0;
-			for(List<String> fields : allFields){
-				for(String f : fields){
+			for (List<String> fields : allFields) {
+				for (String f : fields) {
 					sheet.autoSizeColumn(cnt++);
 				}
 			}
@@ -125,30 +126,28 @@ public class ExcelManager {
 			workbook.write(out);
 			return new ByteArrayInputStream(out.toByteArray());
 		}
-		catch (IOException | ClassNotFoundException | IntrospectionException | InvocationTargetException | IllegalAccessException e) {
+		catch (IOException | ClassNotFoundException | IntrospectionException | InvocationTargetException
+				| IllegalAccessException e) {
 			throw new RuntimeException("fail to import data to Excel file: " + e.getMessage());
 		}
 	}
 
 	/**
-	 *
 	 * @param ENTITY_NAMES
-	 * @return allFields
-	 * returns all fields annotated with @Administer including the fields of parent classes.
-	 * searches recursively until field "id" is found.
-	 *
+	 * @return allFields returns all fields annotated with @Administer including the
+	 * fields of parent classes. searches recursively until field "id" is found.
 	 * @throws ClassNotFoundException
 	 *
 	 */
 	public static List<List<String>> getAdministerFields(String[] ENTITY_NAMES) throws ClassNotFoundException {
 		List<List<String>> allFields = new ArrayList<>();
 
-		for (String name : ENTITY_NAMES){
+		for (String name : ENTITY_NAMES) {
 			List<String> fields = new ArrayList<>();
 
 			Class clazz = Class.forName(APPLICATION_NAME + '.' + name);
 
-			while(true){
+			while (true) {
 				List<String> tmp = new ArrayList<>();
 				for (Field field : clazz.getDeclaredFields()) {
 					if (field.isAnnotationPresent(Administer.class)) {
@@ -156,11 +155,13 @@ public class ExcelManager {
 					}
 				}
 				// add to front to maintain order of fields
-				fields.addAll(0,tmp);
+				fields.addAll(0, tmp);
 
 				//
-				if(fields.get(0).equals("id")) break;
-				else clazz = clazz.getSuperclass();
+				if (fields.get(0).equals("id"))
+					break;
+				else
+					clazz = clazz.getSuperclass();
 			}
 
 			allFields.add(fields);
@@ -178,7 +179,7 @@ public class ExcelManager {
 		for (List<String> fields : allFields) {
 			// name attribute cells
 			firstCol = lastCol;
-			for(String f : fields){
+			for (String f : fields) {
 				Cell cell = tableRow.createCell(lastCol);
 				cell.setCellStyle(style(0, workbook));
 
@@ -188,51 +189,51 @@ public class ExcelManager {
 			}
 			// name and merge table header cells
 			String str = ENTITY_NAMES[entityIdx++];
-			CellUtil.createCell(tableRow, firstCol, str.substring(str.indexOf('.')+1));
-			sheet.addMergedRegion(new CellRangeAddress(1,1, firstCol, lastCol-1));
+			CellUtil.createCell(tableRow, firstCol, str.substring(str.indexOf('.') + 1));
+			sheet.addMergedRegion(new CellRangeAddress(1, 1, firstCol, lastCol - 1));
 		}
 
 	}
 
 	public static void dataFormatter(Sheet sheet, List<Owner> owners, List<List<String>> allFields, Workbook workbook)
-		throws IntrospectionException, InvocationTargetException, IllegalAccessException {
+			throws IntrospectionException, InvocationTargetException, IllegalAccessException {
 
 		int entityIdx = 0;
 		int rowIdx = 3;
 		int colIdx = 1;
 
-		for(Owner owner : owners){
+		for (Owner owner : owners) {
 			int startRow = rowIdx;
 
 			Row row = sheet.createRow(rowIdx);
 			colIdx = makeCells(row, colIdx, owner, allFields.get(entityIdx), workbook);
 
 			entityIdx++;
-			for(Pet pet : owner.getPets()){
+			for (Pet pet : owner.getPets()) {
 				makeCells(row, colIdx, pet, allFields.get(entityIdx), workbook);
 				row = sheet.createRow(++rowIdx);
 			}
-			if(owner.getPets().size() == 0){
+			if (owner.getPets().size() == 0) {
 				CellUtil.createCell(row, colIdx, "", style(1, workbook));
-				for(int i = 1; i < allFields.get(entityIdx).size()-1; i++){
-					CellUtil.createCell(row, colIdx+i, "", style(2, workbook));
+				for (int i = 1; i < allFields.get(entityIdx).size() - 1; i++) {
+					CellUtil.createCell(row, colIdx + i, "", style(2, workbook));
 				}
-				CellUtil.createCell(row, colIdx+allFields.get(entityIdx).size()-1, "", style(3, workbook));
+				CellUtil.createCell(row, colIdx + allFields.get(entityIdx).size() - 1, "", style(3, workbook));
 			}
 			entityIdx--;
 
 			// if more than one pet
-			if(rowIdx-1 > startRow){
-				for(int i = startRow+1; i < rowIdx; i++){
+			if (rowIdx - 1 > startRow) {
+				for (int i = startRow + 1; i < rowIdx; i++) {
 					row = sheet.getRow(i);
 					row.createCell(1).setCellStyle(style(1, workbook));
-					for(int j = 2; j < colIdx-1; j++){
+					for (int j = 2; j < colIdx - 1; j++) {
 						row.createCell(j).setCellStyle(style(2, workbook));
 					}
-					row.createCell(colIdx-1).setCellStyle(style(3, workbook));
+					row.createCell(colIdx - 1).setCellStyle(style(3, workbook));
 				}
-				for(int i = 1; i < colIdx; i++)
-					sheet.addMergedRegion(new CellRangeAddress(startRow,rowIdx-1, i, i));
+				for (int i = 1; i < colIdx; i++)
+					sheet.addMergedRegion(new CellRangeAddress(startRow, rowIdx - 1, i, i));
 			}
 
 			colIdx = 1;
@@ -241,23 +242,23 @@ public class ExcelManager {
 	}
 
 	public static int makeCells(Row row, int colIdx, Object object, List<String> fields, Workbook workbook)
-		throws IntrospectionException, InvocationTargetException, IllegalAccessException {
+			throws IntrospectionException, InvocationTargetException, IllegalAccessException {
 
 		Class clazz = object.getClass();
 
 		Cell cell = row.createCell(colIdx);
-		for(String field : fields){
+		for (String field : fields) {
 			PropertyDescriptor pd = new PropertyDescriptor(field, clazz);
 			Method method = pd.getReadMethod();
 
 			cell = row.createCell(colIdx++);
 			cell.setCellStyle(style(2, workbook));
 
-			if (field.equals("id")){
-				cell.setCellValue((int)method.invoke(object));
+			if (field.equals("id")) {
+				cell.setCellValue((int) method.invoke(object));
 				cell.setCellStyle(style(1, workbook));
 			}
-			else{
+			else {
 				cell.setCellValue(method.invoke(object).toString());
 			}
 		}
@@ -266,29 +267,29 @@ public class ExcelManager {
 		return colIdx;
 	}
 
-	public static CellStyle style(int type, Workbook workbook){
+	public static CellStyle style(int type, Workbook workbook) {
 		CellStyle style = workbook.createCellStyle();
-		switch(type){
-			case 0:
-				style.setBorderBottom(BorderStyle.MEDIUM);
-				style.setBorderLeft(BorderStyle.MEDIUM);
-				style.setBorderRight(BorderStyle.MEDIUM);
-				style.setBorderTop(BorderStyle.MEDIUM);
-				break;
-			case 1:
-				style.setBorderBottom(BorderStyle.DASHED);
-				style.setBorderLeft(BorderStyle.MEDIUM);
-				style.setVerticalAlignment(CellStyle.VERTICAL_CENTER);
-				break;
-			case 2:
-				style.setBorderBottom(BorderStyle.DASHED);
-				style.setVerticalAlignment(CellStyle.VERTICAL_CENTER);
-				break;
-			case 3:
-				style.setBorderBottom(BorderStyle.DASHED);
-				style.setBorderRight(BorderStyle.MEDIUM);
-				style.setVerticalAlignment(CellStyle.VERTICAL_CENTER);
-				break;
+		switch (type) {
+		case 0:
+			style.setBorderBottom(BorderStyle.MEDIUM);
+			style.setBorderLeft(BorderStyle.MEDIUM);
+			style.setBorderRight(BorderStyle.MEDIUM);
+			style.setBorderTop(BorderStyle.MEDIUM);
+			break;
+		case 1:
+			style.setBorderBottom(BorderStyle.DASHED);
+			style.setBorderLeft(BorderStyle.MEDIUM);
+			style.setVerticalAlignment(CellStyle.VERTICAL_CENTER);
+			break;
+		case 2:
+			style.setBorderBottom(BorderStyle.DASHED);
+			style.setVerticalAlignment(CellStyle.VERTICAL_CENTER);
+			break;
+		case 3:
+			style.setBorderBottom(BorderStyle.DASHED);
+			style.setBorderRight(BorderStyle.MEDIUM);
+			style.setVerticalAlignment(CellStyle.VERTICAL_CENTER);
+			break;
 		}
 		return style;
 	}

@@ -1,18 +1,17 @@
 package org.springframework.samples.petclinic.admin;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.samples.petclinic.dto.ExcelDto;
 import org.springframework.samples.petclinic.owner.Owner;
 import org.springframework.samples.petclinic.owner.OwnerRepository;
 import org.springframework.samples.petclinic.owner.Pet;
 import org.springframework.samples.petclinic.owner.PetRepository;
 import org.springframework.samples.petclinic.visit.VisitRepository;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -20,13 +19,19 @@ public class ExcelService {
 
 	@Autowired
 	OwnerRepository ownerRepository;
+
+	@Autowired
+	PetRepository petRepository;
+
 	@Autowired
 	VisitRepository visitRepository;
 
 	public void save(MultipartFile file) {
 		try {
-			List<Owner> owners = ExcelManager.excelToOwners(file.getInputStream());
-			ownerRepository.saveAll(owners);
+			ExcelDto dto = ExcelManager2.excelToDB(file.getInputStream());
+			ownerRepository.saveAll(dto.getOwners());
+			petRepository.saveAll(dto.getPets());
+			visitRepository.saveAll(dto.getVisits());
 		}
 		catch (IOException e) {
 			throw new RuntimeException("fail to store excel data: " + e.getMessage());
@@ -35,8 +40,8 @@ public class ExcelService {
 
 	public ByteArrayInputStream load() {
 		List<Owner> owners = ownerRepository.findAll();
-		for(Owner owner : owners){
-			for(Pet pet : owner.getPets()){
+		for (Owner owner : owners) {
+			for (Pet pet : owner.getPets()) {
 				pet.setVisitsInternal(visitRepository.findByPetId(pet.getId()));
 			}
 		}
@@ -44,6 +49,5 @@ public class ExcelService {
 
 		return in;
 	}
-
 
 }

@@ -157,7 +157,7 @@ class OwnerController {
 		Owner owner = ownerRepository.findOwnerById(ownerId);
 
 		for (Pet pet : owner.getPets()) {
-//			pet.setVisitsInternal(visitRepository.findByPetId(pet.getId()));
+			pet.setVisitsInternal(visitRepository.findByPetId(pet.getId()));
 			for (Visit visit : pet.getVisits()) {
 				if (treatmentRepository.findByVisitId(visit.getId()) == null)
 					visit.setTreated(true);
