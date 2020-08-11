@@ -15,22 +15,15 @@ import org.apache.poi.common.usermodel.HyperlinkType;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.springframework.web.multipart.MultipartFile;
+
 
 public class ExcelManager2 {
-
-	public static String TYPE = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
-	static final String APPLICATION_NAME = "org.springframework.samples.petclinic";
-
-	public static boolean hasExcelFormat(MultipartFile file) {
-		return TYPE.equals(file.getContentType());
-	}
 
 	// ALL DATA DOWNLOAD
 	public static ByteArrayInputStream dataToExcel(List entity) {
 		try (Workbook workbook = new XSSFWorkbook(); ByteArrayOutputStream out = new ByteArrayOutputStream()) {
 
-			sheetFormatter(workbook, entity);
+			sheetFormatter(workbook, entity, 0);
 			// write
 			workbook.write(out);
 			return new ByteArrayInputStream(out.toByteArray());
@@ -62,7 +55,7 @@ public class ExcelManager2 {
 
 	}
 
-	public static void sheetFormatter(Workbook workbook, List<Object> entity) throws IntrospectionException, InvocationTargetException, IllegalAccessException {
+	public static void sheetFormatter(Workbook workbook, List<Object> entity, int referenceId) throws IntrospectionException, InvocationTargetException, IllegalAccessException {
 
 		// get class of object
 		Class clazz = entity.get(0).getClass();
@@ -70,7 +63,9 @@ public class ExcelManager2 {
 		List<String> fields = getAdministerFields(clazz);
 
 		// create main sheet
-		Sheet sheet = workbook.createSheet(entityName);
+		String sheetName = entityName;
+		if (referenceId != 0) sheetName = sheetName.concat(Integer.toString(referenceId));
+		Sheet sheet = workbook.createSheet(sheetName);
 
 		// relative coordinates of table
 		int ROW_SPACE = 1;
@@ -95,7 +90,9 @@ public class ExcelManager2 {
 		// format DATA region
 		for(int i = 0; i < entityRowSize; i++){
 			Row row = sheet.createRow(ROW_SPACE+i);
+
 			Object object = entity.get(i);
+
 			for(int j = 0; j < entityColSize; j++){
 				if(j == 0){
 					row.createCell(COL_SPACE).setCellValue(getId(object));
@@ -108,21 +105,25 @@ public class ExcelManager2 {
 			Cell hyperlinkCell = row.createCell(COL_SPACE+entityColSize);
 
 			//get @ReferencedBy field name and create new sheet using sheetFormatter() recursively
-			String str = getReferencedField(clazz);
-			if(str.isEmpty()) continue;
-			else{
-				String referencedFieldName = str.substring(0,1).toUpperCase() + str.substring(1,str.length()-1);
-				workbook.createSheet(referencedFieldName + getId(object));
+			String referencedField = getReferencedField(clazz);
 
-				// create hyperlink
-				hyperlinkCell.setCellValue(getReferencedField(clazz));
-				Hyperlink hyperlink = workbook.getCreationHelper().createHyperlink(HyperlinkType.DOCUMENT);
-				hyperlink.setAddress(referencedFieldName + getId(object) + "!A1");
-				headerCell.setHyperlink(hyperlink);
+			if(!referencedField.isEmpty()) {
+				String referencedFieldName = referencedField.substring(0,1).toUpperCase() + referencedField.substring(1, referencedField.length()-1);
+
+				// set value of hyperlink cell
+				hyperlinkCell.setCellValue(referencedField);
 
 				// recursive call of sheetFormatter
 				List<Object> linkedEntity = getLinkedEntity(clazz, object);
-				sheetFormatter(workbook, linkedEntity);
+
+				if(linkedEntity.size() == 0) continue;
+
+				sheetFormatter(workbook, linkedEntity, getId(object));
+
+				// create hyperlink
+				Hyperlink hyperlink = workbook.getCreationHelper().createHyperlink(HyperlinkType.DOCUMENT);
+				hyperlink.setAddress(referencedFieldName + getId(object) + "!A1");
+				hyperlinkCell.setHyperlink(hyperlink);
 			}
 
 		}
@@ -144,7 +145,7 @@ public class ExcelManager2 {
 		PropertyDescriptor pd = new PropertyDescriptor(field, clazz);
 		Method method = pd.getReadMethod();
 
-		return (String)method.invoke(object);
+		return method.invoke(object).toString();
 	}
 
 	public static String getReferencedField(Class clazz){
@@ -157,11 +158,13 @@ public class ExcelManager2 {
 		return "";
 	}
 
-	public static List<Object> getLinkedEntity(Class clazz, Object object) throws IntrospectionException, InvocationTargetException, IllegalAccessException {
+	public static List<Object> getLinkedEntity(Class clazz, Object object) throws InvocationTargetException, IllegalAccessException {
 
+		// find and return linked entity field
 		for(Method method : clazz.getDeclaredMethods()){
 			if(method.isAnnotationPresent(LinkedEntityGetter.class)) {
-				return (List<Object>) method.invoke(object);
+				List<Object> list = (List)method.invoke(object);
+				return list;
 			}
 		}
 		return null;
