@@ -21,6 +21,7 @@ import javax.persistence.*;
 import javax.validation.constraints.NotEmpty;
 
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.samples.petclinic.admin.Administer;
 import org.springframework.samples.petclinic.model.BaseEntity;
 
 /**
@@ -33,10 +34,12 @@ import org.springframework.samples.petclinic.model.BaseEntity;
 @Table(name = "visits")
 public class Visit extends BaseEntity {
 
+	@Administer
 	@Column(name = "visit_date")
 	@DateTimeFormat(pattern = "yyyy-MM-dd")
 	private LocalDate date;
 
+	@Administer
 	@NotEmpty
 	@Column(name = "description")
 	private String description;
