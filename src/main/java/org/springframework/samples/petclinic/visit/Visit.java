@@ -16,12 +16,17 @@
 package org.springframework.samples.petclinic.visit;
 
 import java.time.LocalDate;
+import java.util.*;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotEmpty;
 
+import org.springframework.beans.support.MutableSortDefinition;
+import org.springframework.beans.support.PropertyComparator;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.samples.petclinic.admin.Administer;
+import org.springframework.samples.petclinic.admin.LinkedEntityGetter;
+import org.springframework.samples.petclinic.admin.ReferencedBy;
 import org.springframework.samples.petclinic.model.BaseEntity;
 
 /**
@@ -46,6 +51,19 @@ public class Visit extends BaseEntity {
 
 	@Column(name = "pet_id")
 	private Integer petId;
+
+	@ReferencedBy
+	@Transient
+	private List<Treatment> treatments = new ArrayList<>();
+
+	@LinkedEntityGetter
+	public List<Treatment> getTreatments() {
+		return this.treatments;
+	}
+
+	public void setTreatments(Collection<Treatment> treatments) {
+		this.treatments = new ArrayList<>(treatments);
+	}
 
 	@OneToOne
 	@Transient

@@ -1,4 +1,4 @@
-package org.springframework.samples.petclinic.admin;
+package org.springframework.samples.petclinic.admin.ExcelUtilTools;
 
 import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
@@ -14,10 +14,12 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.apache.poi.common.usermodel.HyperlinkType;
-import org.apache.poi.hssf.usermodel.HSSFFont;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.samples.petclinic.admin.Administer;
+import org.springframework.samples.petclinic.admin.LinkedEntityGetter;
+import org.springframework.samples.petclinic.admin.ReferencedBy;
 import org.springframework.samples.petclinic.dto.ExcelDto;
 import org.springframework.samples.petclinic.owner.Owner;
 
@@ -64,6 +66,8 @@ public class ExcelManager2 {
 	public static void sheetFormatter(Workbook workbook, List<Object> entity, int referenceId)
 			throws IntrospectionException, InvocationTargetException, IllegalAccessException {
 		// get class of object
+		if (entity.get(0) == null)
+			return;
 		Class clazz = entity.get(0).getClass();
 		String entityName = clazz.getName().substring(clazz.getName().lastIndexOf('.') + 1);
 		List<String> fields = getAdministerFields(clazz);

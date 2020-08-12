@@ -6,14 +6,15 @@ import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.samples.petclinic.owner.OwnerRepository;
+import org.springframework.samples.petclinic.admin.ExcelUtilTools.ExcelManager;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.beans.IntrospectionException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
 
 @Controller
@@ -29,7 +30,7 @@ class AdminController {
 	}
 
 	@GetMapping("/admin/download")
-	public ResponseEntity<Resource> downloadFile() {
+	public ResponseEntity<Resource> downloadFile() throws IntrospectionException, InvocationTargetException {
 		String filename = "ownerData.xlsx";
 		InputStreamResource file = new InputStreamResource(excelService.load());
 

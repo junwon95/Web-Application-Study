@@ -64,7 +64,7 @@ class VisitController {
 	@ModelAttribute("visit")
 	public Visit loadPetWithVisit(@PathVariable("petId") int petId, Map<String, Object> model) {
 		Pet pet = this.pets.findPetById(petId);
-		pet.setVisitsInternal(this.visits.findByPetId(petId));
+		pet.setVisitsInternal(this.visits.findVisitsByPetId(petId));
 		model.put("pet", pet);
 		Visit visit = new Visit();
 		pet.addVisit(visit);
@@ -86,7 +86,7 @@ class VisitController {
 		else {
 			this.visits.save(visit);
 			Pet pet = pets.findPetById(visit.getPetId());
-			pet.setVisitsInternal(visits.findByPetId(pet.getId()));
+			pet.setVisitsInternal(visits.findVisitsByPetId(pet.getId()));
 			return "redirect:/owners/{ownerId}";
 		}
 	}

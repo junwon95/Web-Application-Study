@@ -1,297 +1,121 @@
 package org.springframework.samples.petclinic.admin;
 
-import java.beans.IntrospectionException;
-import java.beans.PropertyDescriptor;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
-import org.apache.poi.ss.usermodel.*;
-import org.apache.poi.ss.util.CellRangeAddress;
-import org.apache.poi.ss.util.CellUtil;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.springframework.samples.petclinic.owner.Owner;
-import org.springframework.samples.petclinic.owner.Pet;
-import org.springframework.web.multipart.MultipartFile;
+public abstract class ExcelManager {
 
-public class ExcelManager {
+	Workbook wb;
+	final int START_ROW = 3;
+	final int START_COL = 3;
 
-	static final String APPLICATION_NAME = "org.springframework.samples.petclinic";
-
-	public static String TYPE = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
-
-	// attributes of Owner relation
-	static String SHEET = "AdministrationData";
-
-	public static boolean hasExcelFormat(MultipartFile file) {
-		return TYPE.equals(file.getContentType());
-	}
-
-	// UPLOAD
-	public static List<Owner> excelToOwners(InputStream is) {
+	ByteArrayInputStream dataToExcel(List<?> table) {
 		try {
-			Workbook workbook = new XSSFWorkbook(is);
-
-			Sheet sheet = workbook.getSheet(SHEET);
-			Iterator<Row> rows = sheet.iterator();
-
-			List<Owner> owners = new ArrayList<Owner>();
-
-			int rowNumber = 0;
-			while (rows.hasNext()) {
-				Row currentRow = rows.next();
-
-				// skip header
-				if (rowNumber == 0) {
-					rowNumber++;
-					continue;
-				}
-
-				Iterator<Cell> cellsInRow = currentRow.iterator();
-
-				Owner owner = new Owner();
-
-				int cellIdx = 0;
-				while (cellsInRow.hasNext()) {
-					Cell currentCell = cellsInRow.next();
-					// get value from each cell of row and set to table
-					switch (cellIdx) {
-					case 0:
-						owner.setId((int) Math.round(currentCell.getNumericCellValue()));
-						break;
-					case 1:
-						owner.setFirstName(currentCell.getStringCellValue());
-						break;
-					case 2:
-						owner.setLastName(currentCell.getStringCellValue());
-						break;
-					case 3:
-						owner.setAddress(currentCell.getStringCellValue());
-						break;
-					case 4:
-						owner.setCity(currentCell.getStringCellValue());
-						break;
-					case 5:
-						owner.setTelephone(currentCell.getStringCellValue());
-						break;
-					default:
-						break;
-					}
-					cellIdx++;
-				}
-				owners.add(owner);
-			}
-			workbook.close();
-			return owners;
-		}
-		catch (IOException e) {
-			throw new RuntimeException("fail to parse Excel file: " + e.getMessage());
-		}
-	}
-
-	static String[] ENTITY_NAMES = { "owner.Owner", "owner.Pet" };
-
-	// ALL DATA DOWNLOAD
-	public static ByteArrayInputStream dataToExcel(List<Owner> owners) {
-		try (Workbook workbook = new XSSFWorkbook(); ByteArrayOutputStream out = new ByteArrayOutputStream()) {
-
-			// SHEET
-			Sheet sheet = workbook.createSheet("dataBaseInstance");
-			// freeze header rows
-			sheet.createFreezePane(3, 3);
-
-			// HEADER
-			List<List<String>> allFields = getAdministerFields(ENTITY_NAMES);
-			headerFormatter(sheet, allFields, workbook);
-
-			// DATA
-			dataFormatter(sheet, owners, allFields, workbook);
-
-			// autosize columns to fit text
-			int cnt = 0;
-			for (List<String> fields : allFields) {
-				for (String f : fields) {
-					sheet.autoSizeColumn(cnt++);
-				}
-			}
-
+			this.wb = new XSSFWorkbook();
+			ByteArrayOutputStream out = new ByteArrayOutputStream();
+			// create sheets
+			this.makeSheets(table);
 			// write
-			workbook.write(out);
+			wb.write(out);
 			return new ByteArrayInputStream(out.toByteArray());
 		}
-		catch (IOException | ClassNotFoundException | IntrospectionException | InvocationTargetException
-				| IllegalAccessException e) {
+		catch (IOException e) {
 			throw new RuntimeException("fail to import data to Excel file: " + e.getMessage());
 		}
 	}
 
-	/**
-	 * @param ENTITY_NAMES
-	 * @return allFields returns all fields annotated with @Administer including the
-	 * fields of parent classes. searches recursively until field "id" is found.
-	 * @throws ClassNotFoundException
-	 *
-	 */
-	public static List<List<String>> getAdministerFields(String[] ENTITY_NAMES) throws ClassNotFoundException {
-		List<List<String>> allFields = new ArrayList<>();
+	public void makeSheet(List<?> table, int referenceId){
+		String sheetName = makeSheetName(table, referenceId);
+		Sheet sheet = wb.createSheet(sheetName);
+		String[] fields = getFields();
 
-		for (String name : ENTITY_NAMES) {
-			List<String> fields = new ArrayList<>();
+		// makeHeader
+		makeHeader(sheet, fields);
 
-			Class clazz = Class.forName(APPLICATION_NAME + '.' + name);
-
-			while (true) {
-				List<String> tmp = new ArrayList<>();
-				for (Field field : clazz.getDeclaredFields()) {
-					if (field.isAnnotationPresent(Administer.class)) {
-						tmp.add(field.getName());
-					}
-				}
-				// add to front to maintain order of fields
-				fields.addAll(0, tmp);
-
-				//
-				if (fields.get(0).equals("id"))
-					break;
-				else
-					clazz = clazz.getSuperclass();
-			}
-
-			allFields.add(fields);
-		}
-
-		return allFields;
+		// writeData
+		writeData(sheet, table);
 	}
 
-	public static void headerFormatter(Sheet sheet, List<List<String>> allFields, Workbook workbook) {
+	public String makeSheetName(List<?> table, int referenceId) {
+		// get class name
+		String className = table.get(0).getClass().getName();
+		// remove class prefix
+		String sheetName = className.substring(className.lastIndexOf('.') + 1) + "s";
+		// get sheet's number
+		if (referenceId != 0)
+			sheetName = className.concat(Integer.toString(referenceId));
 
-		Row tableRow = sheet.createRow(1);
-		Row attributeRow = sheet.createRow(2);
-		int firstCol, lastCol = 1;
-		int entityIdx = 0;
-		for (List<String> fields : allFields) {
-			// name attribute cells
-			firstCol = lastCol;
-			for (String f : fields) {
-				Cell cell = tableRow.createCell(lastCol);
-				cell.setCellStyle(style(0, workbook));
-
-				cell = attributeRow.createCell(lastCol++);
-				cell.setCellValue(f);
-				cell.setCellStyle(style(0, workbook));
-			}
-			// name and merge table header cells
-			String str = ENTITY_NAMES[entityIdx++];
-			CellUtil.createCell(tableRow, firstCol, str.substring(str.indexOf('.') + 1));
-			sheet.addMergedRegion(new CellRangeAddress(1, 1, firstCol, lastCol - 1));
-		}
-
+		return sheetName;
 	}
 
-	public static void dataFormatter(Sheet sheet, List<Owner> owners, List<List<String>> allFields, Workbook workbook)
-			throws IntrospectionException, InvocationTargetException, IllegalAccessException {
+	public void makeHeader(Sheet sheet, String[] fields) {
 
-		int entityIdx = 0;
-		int rowIdx = 3;
-		int colIdx = 1;
+		final int COL_SIZE = fields.length;
 
-		for (Owner owner : owners) {
-			int startRow = rowIdx;
-
-			Row row = sheet.createRow(rowIdx);
-			colIdx = makeCells(row, colIdx, owner, allFields.get(entityIdx), workbook);
-
-			entityIdx++;
-			for (Pet pet : owner.getPets()) {
-				makeCells(row, colIdx, pet, allFields.get(entityIdx), workbook);
-				row = sheet.createRow(++rowIdx);
-			}
-			if (owner.getPets().size() == 0) {
-				CellUtil.createCell(row, colIdx, "", style(1, workbook));
-				for (int i = 1; i < allFields.get(entityIdx).size() - 1; i++) {
-					CellUtil.createCell(row, colIdx + i, "", style(2, workbook));
-				}
-				CellUtil.createCell(row, colIdx + allFields.get(entityIdx).size() - 1, "", style(3, workbook));
-			}
-			entityIdx--;
-
-			// if more than one pet
-			if (rowIdx - 1 > startRow) {
-				for (int i = startRow + 1; i < rowIdx; i++) {
-					row = sheet.getRow(i);
-					row.createCell(1).setCellStyle(style(1, workbook));
-					for (int j = 2; j < colIdx - 1; j++) {
-						row.createCell(j).setCellStyle(style(2, workbook));
-					}
-					row.createCell(colIdx - 1).setCellStyle(style(3, workbook));
-				}
-				for (int i = 1; i < colIdx; i++)
-					sheet.addMergedRegion(new CellRangeAddress(startRow, rowIdx - 1, i, i));
-			}
-
-			colIdx = 1;
+		Row tableNameRow = sheet.createRow(START_ROW);
+		for(int i = START_COL; i < START_COL + COL_SIZE; i++) {
+			Cell cell = tableNameRow.createCell(i);
+			cell.setCellStyle(style("HEADER"));
 		}
+		Cell tableNameCell = tableNameRow.getCell(START_COL);
+		tableNameCell.setCellValue(sheet.getSheetName());
+		sheet.addMergedRegion(new CellRangeAddress(START_ROW,START_ROW,START_COL,START_COL+COL_SIZE-1));
 
+		Row fieldNamesRow = sheet.createRow(START_ROW+1);
+		for(int i = START_COL; i < START_COL + COL_SIZE; i++) {
+			Cell cell = fieldNamesRow.createCell(i);
+			cell.setCellValue(fields[i-START_COL]);
+			cell.setCellStyle(style("HEADER"));
+		}
 	}
 
-	public static int makeCells(Row row, int colIdx, Object object, List<String> fields, Workbook workbook)
-			throws IntrospectionException, InvocationTargetException, IllegalAccessException {
-
-		Class clazz = object.getClass();
-
-		Cell cell = row.createCell(colIdx);
-		for (String field : fields) {
-			PropertyDescriptor pd = new PropertyDescriptor(field, clazz);
-			Method method = pd.getReadMethod();
-
-			cell = row.createCell(colIdx++);
-			cell.setCellStyle(style(2, workbook));
-
-			if (field.equals("id")) {
-				cell.setCellValue((int) method.invoke(object));
-				cell.setCellStyle(style(1, workbook));
-			}
-			else {
-				cell.setCellValue(method.invoke(object).toString());
-			}
-		}
-		cell.setCellStyle(style(3, workbook));
-
-		return colIdx;
-	}
-
-	public static CellStyle style(int type, Workbook workbook) {
-		CellStyle style = workbook.createCellStyle();
+	// Cell styles
+	public CellStyle style(String type) {
+		CellStyle style = wb.createCellStyle();
 		switch (type) {
-		case 0:
-			style.setBorderBottom(BorderStyle.MEDIUM);
-			style.setBorderLeft(BorderStyle.MEDIUM);
-			style.setBorderRight(BorderStyle.MEDIUM);
-			style.setBorderTop(BorderStyle.MEDIUM);
-			break;
-		case 1:
-			style.setBorderBottom(BorderStyle.DASHED);
-			style.setBorderLeft(BorderStyle.MEDIUM);
-			style.setVerticalAlignment(CellStyle.VERTICAL_CENTER);
-			break;
-		case 2:
-			style.setBorderBottom(BorderStyle.DASHED);
-			style.setVerticalAlignment(CellStyle.VERTICAL_CENTER);
-			break;
-		case 3:
-			style.setBorderBottom(BorderStyle.DASHED);
-			style.setBorderRight(BorderStyle.MEDIUM);
-			style.setVerticalAlignment(CellStyle.VERTICAL_CENTER);
-			break;
+			case "HEADER":
+				style.setBorderBottom(BorderStyle.MEDIUM);
+				style.setBorderLeft(BorderStyle.MEDIUM);
+				style.setBorderRight(BorderStyle.MEDIUM);
+				style.setBorderTop(BorderStyle.MEDIUM);
+				style.setFillForegroundColor(IndexedColors.LEMON_CHIFFON.getIndex());
+				style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+				break;
+			case "DATA":
+				style.setBorderBottom(BorderStyle.DASHED);
+				style.setLocked(false);
+				break;
+			case "DATA_LEFT":
+				style.setBorderBottom(BorderStyle.DASHED);
+				style.setBorderLeft(BorderStyle.MEDIUM);
+				break;
+			case "DATA_RIGHT":
+				style.setBorderBottom(BorderStyle.DASHED);
+				style.setBorderRight(BorderStyle.MEDIUM);
+				style.setLocked(false);
+				break;
+			case "LINK":
+				Font font = wb.createFont();
+				font.setColor(IndexedColors.BLUE.getIndex());
+				style.setFont(font);
+				break;
+			case "FOOTER":
+				style.setBorderBottom(BorderStyle.MEDIUM);
 		}
 		return style;
 	}
+
+	public abstract void makeSheets(List<?> table);
+
+	public abstract void writeData(Sheet sheet, List<?> Table);
+
+	public abstract String[] getFields();
 
 }

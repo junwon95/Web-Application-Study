@@ -23,6 +23,7 @@ import javax.validation.constraints.NotEmpty;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.samples.petclinic.admin.Administer;
 import org.springframework.samples.petclinic.model.BaseEntity;
 import org.springframework.samples.petclinic.vet.Vet;
 
@@ -40,9 +41,11 @@ public class Treatment extends BaseEntity {
 	@JoinColumn(name = "vet_id")
 	private Vet vet;
 
+	@Administer
 	@Column(name = "description")
 	private String description;
 
+	@Administer
 	@Column(name = "prescription")
 	private String prescription;
 
