@@ -174,10 +174,11 @@ public class ExcelUtils {
 
 	}
 
-	public void writeData(List<?> table, List<Field> fields, Cell[][] cells) throws IllegalAccessException, IntrospectionException, InvocationTargetException {
+	public void writeData(List<?> table, List<Field> fields, Cell[][] cells)
+			throws IllegalAccessException, IntrospectionException, InvocationTargetException {
 		for (int i = 2; i < ROW_SIZE; i++) {
 			for (int j = 0; j < COL_SIZE; j++) {
-				String value = getFieldValue(table.get(i-2), fields.get(j));
+				String value = getFieldValue(table.get(i - 2), fields.get(j));
 				cells[i][j].setCellValue(value);
 			}
 		}
@@ -196,7 +197,7 @@ public class ExcelUtils {
 	}
 
 	public static String getFieldValue(Object object, Field field)
-		throws IntrospectionException, InvocationTargetException, IllegalAccessException {
+			throws IntrospectionException, InvocationTargetException, IllegalAccessException {
 		// get class of object
 		String fieldName = field.getName();
 		Class clazz = object.getClass();

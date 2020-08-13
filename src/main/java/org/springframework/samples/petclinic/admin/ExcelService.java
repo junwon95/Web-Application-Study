@@ -69,17 +69,17 @@ public class ExcelService {
 		// ByteArrayInputStream in = ExcelManager2.dataToExcel(owners);
 
 		// Pet ver
-//		List<Pet> pets = petRepository.findAll();
-//		for (Pet pet : pets) {
-//			pet.setVisitsInternal(visitRepository.findVisitsByPetId(pet.getId()));
-//			for (Visit visit : pet.getVisits()) {
-//				List<Treatment> treatments = new ArrayList<>();
-//				treatments.add(treatmentRepository.findByVisitId(visit.getId()));
-//				visit.setTreatments(treatments);
-//			}
-//		}
-//		PetExcelManager petExcelManager = new PetExcelManager();
-//		ByteArrayInputStream in = petExcelManager.dataToExcel(pets);
+		// List<Pet> pets = petRepository.findAll();
+		// for (Pet pet : pets) {
+		// pet.setVisitsInternal(visitRepository.findVisitsByPetId(pet.getId()));
+		// for (Visit visit : pet.getVisits()) {
+		// List<Treatment> treatments = new ArrayList<>();
+		// treatments.add(treatmentRepository.findByVisitId(visit.getId()));
+		// visit.setTreatments(treatments);
+		// }
+		// }
+		// PetExcelManager petExcelManager = new PetExcelManager();
+		// ByteArrayInputStream in = petExcelManager.dataToExcel(pets);
 
 		return in;
 	}

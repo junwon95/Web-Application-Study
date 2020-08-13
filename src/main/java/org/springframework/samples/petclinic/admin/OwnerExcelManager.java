@@ -12,17 +12,18 @@ public class OwnerExcelManager extends ExcelManager {
 	public void makeSheets(List<?> table, int referenceId) {
 		makeSheet(table, referenceId);
 
-		for(Object entity : table){
+		for (Object entity : table) {
 			Owner owner = (Owner) entity;
-			if(owner.getPets().isEmpty()) continue;
+			if (owner.getPets().isEmpty())
+				continue;
 			List<Pet> pets = owner.getPets();
-			PetExcelManager petExcelManager = new PetExcelManager(10,10);
+			PetExcelManager petExcelManager = new PetExcelManager(10, 10);
 			petExcelManager.makeSheets(pets, owner.getId());
 		}
 	}
 
 	@Override
-	public <T> String[] getFieldValues(T entity){
+	public <T> String[] getFieldValues(T entity) {
 		String fieldValues[] = new String[6];
 		Owner owner = (Owner) entity;
 
@@ -38,7 +39,7 @@ public class OwnerExcelManager extends ExcelManager {
 
 	@Override
 	public String[] getFields() {
-		return new String[]{"id", "firstName", "lastName", "Address", "city", "telephone"};
+		return new String[] { "id", "firstName", "lastName", "Address", "city", "telephone" };
 	}
 
 	@Override
@@ -49,10 +50,12 @@ public class OwnerExcelManager extends ExcelManager {
 	}
 
 	@Override
-	public <T> void setHyperCell(Cell cell, T entity){
+	public <T> void setHyperCell(Cell cell, T entity) {
 		Owner owner = (Owner) entity;
-		if(owner.getPets().isEmpty()) return;
+		if (owner.getPets().isEmpty())
+			return;
 		setCell(cell, "see pets", style("LINK"));
 		setHyperLink(cell, "Pets" + owner.getId());
 	}
+
 }

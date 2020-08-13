@@ -7,7 +7,9 @@ import java.util.List;
 
 public class PetExcelManager extends ExcelManager {
 
-	public PetExcelManager(){}
+	public PetExcelManager() {
+	}
+
 	public PetExcelManager(int row, int col) {
 		super.START_ROW += row;
 		super.START_COL += col;
@@ -33,13 +35,14 @@ public class PetExcelManager extends ExcelManager {
 
 	@Override
 	public String[] getFields() {
-		return new String[]{"id", "name", "birthDate", "type"};
+		return new String[] { "id", "name", "birthDate", "type" };
 	}
 
 	@Override
 	public <T> void setHyperCell(Cell cell, T entity) {
 		Pet pet = (Pet) entity;
-		if(pet.getVisits().isEmpty()) return;
+		if (pet.getVisits().isEmpty())
+			return;
 		setCell(cell, "see visits", style("LINK"));
 		setHyperLink(cell, "Visits" + pet.getId());
 	}
@@ -50,4 +53,5 @@ public class PetExcelManager extends ExcelManager {
 
 		return style;
 	}
+
 }
