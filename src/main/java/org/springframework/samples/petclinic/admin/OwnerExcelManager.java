@@ -7,11 +7,6 @@ import org.springframework.samples.petclinic.owner.Pet;
 import java.util.List;
 
 public class OwnerExcelManager extends ExcelManager {
-<<<<<<< HEAD
-
-	private static final String[] FIELDS = { "id", "firstName", "lastName", "Address", "city", "telephone" };
-=======
->>>>>>> da2b995c2562f1c23f6300846db9542b6a0797fb
 
 	@Override
 	public void makeSheets(List<?> table, int referenceId) {
@@ -28,43 +23,6 @@ public class OwnerExcelManager extends ExcelManager {
 	}
 
 	@Override
-<<<<<<< HEAD
-	public void writeData(Sheet sheet, List<?> table) {
-		final int FIELDS = 6;
-		int rowIdx = START_ROW + 2;
-		for (Object t : table) {
-			Owner owner = (Owner) t;
-
-			int colIdx = START_COL;
-			Row row = sheet.createRow(rowIdx++);
-
-			Cell cell = row.createCell(colIdx++);
-			cell.setCellValue(owner.getId());
-			cell.setCellStyle(style("DATA_LEFT"));
-
-			cell = row.createCell(colIdx++);
-			cell.setCellValue(owner.getFirstName());
-			cell.setCellStyle(style("DATA"));
-
-			cell = row.createCell(colIdx++);
-			cell.setCellValue(owner.getLastName());
-			cell.setCellStyle(style("DATA"));
-
-			cell = row.createCell(colIdx++);
-			cell.setCellValue(owner.getAddress());
-			cell.setCellStyle(style("DATA"));
-
-			cell = row.createCell(colIdx++);
-			cell.setCellValue(owner.getCity());
-			cell.setCellStyle(style("DATA"));
-
-			cell = row.createCell(colIdx);
-			cell.setCellValue(owner.getTelephone());
-			cell.setCellStyle(style("DATA_RIGHT"));
-		}
-		for (int i = START_COL; i < START_COL + FIELDS; i++)
-			sheet.autoSizeColumn(i);
-=======
 	public <T> String[] getFieldValues(T entity) {
 		String fieldValues[] = new String[6];
 		Owner owner = (Owner) entity;
@@ -77,7 +35,6 @@ public class OwnerExcelManager extends ExcelManager {
 		fieldValues[5] = owner.getTelephone();
 
 		return fieldValues;
->>>>>>> da2b995c2562f1c23f6300846db9542b6a0797fb
 	}
 
 	@Override
@@ -92,8 +49,6 @@ public class OwnerExcelManager extends ExcelManager {
 		return style;
 	}
 
-<<<<<<< HEAD
-=======
 	@Override
 	public <T> void setHyperCell(Cell cell, T entity) {
 		Owner owner = (Owner) entity;
@@ -103,5 +58,4 @@ public class OwnerExcelManager extends ExcelManager {
 		setHyperLink(cell, "Pets" + owner.getId());
 	}
 
->>>>>>> da2b995c2562f1c23f6300846db9542b6a0797fb
 }

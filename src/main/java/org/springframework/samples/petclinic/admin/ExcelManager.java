@@ -11,7 +11,7 @@ import java.io.IOException;
 import java.util.List;
 
 public abstract class ExcelManager {
-	
+
 	static Workbook wb;
 
 	int START_ROW = 3;
