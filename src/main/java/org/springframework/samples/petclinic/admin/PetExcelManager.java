@@ -6,7 +6,8 @@ import org.springframework.samples.petclinic.owner.Pet;
 import java.util.List;
 
 public class PetExcelManager extends ExcelManager {
-	private static final String[] FIELDS = {"id", "name", "birthDate", "type"};
+
+	private static final String[] FIELDS = { "id", "name", "birthDate", "type" };
 
 	@Override
 	public void makeSheets(List<?> table) {
@@ -16,8 +17,8 @@ public class PetExcelManager extends ExcelManager {
 	@Override
 	public void writeData(Sheet sheet, List<?> table) {
 		final int FIELDS = 4;
-		int rowIdx = START_ROW+2;
-		for(Object t : table){
+		int rowIdx = START_ROW + 2;
+		for (Object t : table) {
 			Pet pet = (Pet) t;
 
 			int colIdx = START_COL;
@@ -39,7 +40,8 @@ public class PetExcelManager extends ExcelManager {
 			cell.setCellValue(pet.getType().toString());
 			cell.setCellStyle(style("DATA_RIGHT"));
 		}
-		for(int i = START_COL; i < START_COL+FIELDS; i++) sheet.autoSizeColumn(i);
+		for (int i = START_COL; i < START_COL + FIELDS; i++)
+			sheet.autoSizeColumn(i);
 	}
 
 	@Override
@@ -53,4 +55,5 @@ public class PetExcelManager extends ExcelManager {
 
 		return style;
 	}
+
 }

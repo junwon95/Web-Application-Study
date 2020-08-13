@@ -6,7 +6,8 @@ import org.springframework.samples.petclinic.owner.Owner;
 import java.util.List;
 
 public class OwnerExcelManager extends ExcelManager {
-	private static final String[] FIELDS = {"id", "firstName", "lastName", "Address", "city", "telephone"};
+
+	private static final String[] FIELDS = { "id", "firstName", "lastName", "Address", "city", "telephone" };
 
 	@Override
 	public void makeSheets(List<?> table) {
@@ -16,8 +17,8 @@ public class OwnerExcelManager extends ExcelManager {
 	@Override
 	public void writeData(Sheet sheet, List<?> table) {
 		final int FIELDS = 6;
-		int rowIdx = START_ROW+2;
-		for(Object t : table){
+		int rowIdx = START_ROW + 2;
+		for (Object t : table) {
 			Owner owner = (Owner) t;
 
 			int colIdx = START_COL;
@@ -47,7 +48,8 @@ public class OwnerExcelManager extends ExcelManager {
 			cell.setCellValue(owner.getTelephone());
 			cell.setCellStyle(style("DATA_RIGHT"));
 		}
-		for(int i = START_COL; i < START_COL+FIELDS; i++) sheet.autoSizeColumn(i);
+		for (int i = START_COL; i < START_COL + FIELDS; i++)
+			sheet.autoSizeColumn(i);
 	}
 
 	@Override
@@ -61,4 +63,5 @@ public class OwnerExcelManager extends ExcelManager {
 
 		return style;
 	}
+
 }
