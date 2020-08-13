@@ -16,7 +16,7 @@ public class OwnerExcelManager extends ExcelManager {
 			Owner owner = (Owner) entity;
 			if(owner.getPets().isEmpty()) continue;
 			List<Pet> pets = owner.getPets();
-			PetExcelManager petExcelManager = new PetExcelManager();
+			PetExcelManager petExcelManager = new PetExcelManager(10,10);
 			petExcelManager.makeSheets(pets, owner.getId());
 		}
 	}

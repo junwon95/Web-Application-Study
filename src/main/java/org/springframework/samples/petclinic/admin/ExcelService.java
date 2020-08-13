@@ -49,7 +49,7 @@ public class ExcelService {
 		}
 	}
 
-	public ByteArrayInputStream load() throws IntrospectionException, InvocationTargetException {
+	public ByteArrayInputStream load() throws IntrospectionException, InvocationTargetException, IOException {
 		// Owner ver
 		List<Owner> owners = ownerRepository.findAll();
 		for (Owner owner : owners) {

@@ -1,7 +1,6 @@
 package org.springframework.samples.petclinic.admin;
 
 import org.apache.poi.common.usermodel.HyperlinkType;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -12,15 +11,13 @@ import java.io.IOException;
 import java.util.List;
 
 public abstract class ExcelManager {
-
 	static Workbook wb;
-	final int START_ROW = 3;
-	final int START_COL = 3;
+	int START_ROW = 3;
+	int START_COL = 3;
 
-	ByteArrayInputStream dataToExcel(List<?> table) {
-		try {
+	ByteArrayInputStream dataToExcel(List<?> table) throws IOException {
+		try (ByteArrayOutputStream out = new ByteArrayOutputStream();){
 			wb = new XSSFWorkbook();
-			ByteArrayOutputStream out = new ByteArrayOutputStream();
 			// create sheets
 			this.makeSheets(table, 0);
 			// write
@@ -30,6 +27,9 @@ public abstract class ExcelManager {
 		catch (IOException e) {
 			throw new RuntimeException("fail to import data to Excel file: " + e.getMessage());
 		}
+		finally{
+			wb.close();
+		}
 	}
 
 	public void makeSheet(List<?> table, int referenceId){
@@ -37,14 +37,14 @@ public abstract class ExcelManager {
 		Sheet sheet = wb.createSheet(sheetName);
 		String[] fields = getFields();
 
-		// makeHeader
+		// make Header
 		makeHeader(sheet, fields);
 
-		// writeData
+		// write Data
 		writeData(sheet, table);
 
 		// make hyperlink
-		for(int i = START_ROW+2; i < START_ROW+table.size(); i++){
+		for(int i = START_ROW+2; i < START_ROW+2+table.size(); i++){
 			Cell hyperCell = sheet.getRow(i).createCell(START_COL+fields.length);
 			setHyperCell(hyperCell, table.get(i-START_ROW-2));
 		}
@@ -93,7 +93,7 @@ public abstract class ExcelManager {
 		final int ROW_LEN = table.size();
 		int COL_LEN = getFields().length;
 
-		for(int i = START_ROW+2; i < START_ROW + ROW_LEN; i++){
+		for(int i = START_ROW+2; i < START_ROW+2 + ROW_LEN; i++){
 			String[] fieldValues = getFieldValues(table.get(i-START_ROW-2));
 
 			Row row = sheet.createRow(i);
