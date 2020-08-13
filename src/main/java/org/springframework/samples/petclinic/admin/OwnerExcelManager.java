@@ -2,19 +2,33 @@ package org.springframework.samples.petclinic.admin;
 
 import org.apache.poi.ss.usermodel.*;
 import org.springframework.samples.petclinic.owner.Owner;
+import org.springframework.samples.petclinic.owner.Pet;
 
 import java.util.List;
 
 public class OwnerExcelManager extends ExcelManager {
+<<<<<<< HEAD
 
 	private static final String[] FIELDS = { "id", "firstName", "lastName", "Address", "city", "telephone" };
+=======
+>>>>>>> da2b995c2562f1c23f6300846db9542b6a0797fb
 
 	@Override
-	public void makeSheets(List<?> table) {
-		makeSheet(table, 0);
+	public void makeSheets(List<?> table, int referenceId) {
+		makeSheet(table, referenceId);
+
+		for (Object entity : table) {
+			Owner owner = (Owner) entity;
+			if (owner.getPets().isEmpty())
+				continue;
+			List<Pet> pets = owner.getPets();
+			PetExcelManager petExcelManager = new PetExcelManager(10, 10);
+			petExcelManager.makeSheets(pets, owner.getId());
+		}
 	}
 
 	@Override
+<<<<<<< HEAD
 	public void writeData(Sheet sheet, List<?> table) {
 		final int FIELDS = 6;
 		int rowIdx = START_ROW + 2;
@@ -50,11 +64,25 @@ public class OwnerExcelManager extends ExcelManager {
 		}
 		for (int i = START_COL; i < START_COL + FIELDS; i++)
 			sheet.autoSizeColumn(i);
+=======
+	public <T> String[] getFieldValues(T entity) {
+		String fieldValues[] = new String[6];
+		Owner owner = (Owner) entity;
+
+		fieldValues[0] = owner.getId().toString();
+		fieldValues[1] = owner.getFirstName();
+		fieldValues[2] = owner.getLastName();
+		fieldValues[3] = owner.getAddress();
+		fieldValues[4] = owner.getCity();
+		fieldValues[5] = owner.getTelephone();
+
+		return fieldValues;
+>>>>>>> da2b995c2562f1c23f6300846db9542b6a0797fb
 	}
 
 	@Override
 	public String[] getFields() {
-		return FIELDS;
+		return new String[] { "id", "firstName", "lastName", "Address", "city", "telephone" };
 	}
 
 	@Override
@@ -64,4 +92,16 @@ public class OwnerExcelManager extends ExcelManager {
 		return style;
 	}
 
+<<<<<<< HEAD
+=======
+	@Override
+	public <T> void setHyperCell(Cell cell, T entity) {
+		Owner owner = (Owner) entity;
+		if (owner.getPets().isEmpty())
+			return;
+		setCell(cell, "see pets", style("LINK"));
+		setHyperLink(cell, "Pets" + owner.getId());
+	}
+
+>>>>>>> da2b995c2562f1c23f6300846db9542b6a0797fb
 }

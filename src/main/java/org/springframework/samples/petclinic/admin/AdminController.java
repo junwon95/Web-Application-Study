@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.beans.IntrospectionException;
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
 
@@ -30,8 +31,9 @@ class AdminController {
 	}
 
 	@GetMapping("/admin/download")
-	public ResponseEntity<Resource> downloadFile() throws IntrospectionException, InvocationTargetException {
-		String filename = "ownerData.xlsx";
+	public ResponseEntity<Resource> downloadFile()
+			throws IntrospectionException, InvocationTargetException, IOException {
+		String filename = "petclinicData.xlsx";
 		InputStreamResource file = new InputStreamResource(excelService.load());
 
 		return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + filename)

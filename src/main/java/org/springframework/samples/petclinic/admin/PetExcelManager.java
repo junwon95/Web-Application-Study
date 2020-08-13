@@ -7,14 +7,25 @@ import java.util.List;
 
 public class PetExcelManager extends ExcelManager {
 
+<<<<<<< HEAD
 	private static final String[] FIELDS = { "id", "name", "birthDate", "type" };
+=======
+	public PetExcelManager() {
+	}
+
+	public PetExcelManager(int row, int col) {
+		super.START_ROW += row;
+		super.START_COL += col;
+	}
+>>>>>>> da2b995c2562f1c23f6300846db9542b6a0797fb
 
 	@Override
-	public void makeSheets(List<?> table) {
-		makeSheet(table, 0);
+	public void makeSheets(List<?> table, int referenceId) {
+		makeSheet(table, referenceId);
 	}
 
 	@Override
+<<<<<<< HEAD
 	public void writeData(Sheet sheet, List<?> table) {
 		final int FIELDS = 4;
 		int rowIdx = START_ROW + 2;
@@ -42,11 +53,32 @@ public class PetExcelManager extends ExcelManager {
 		}
 		for (int i = START_COL; i < START_COL + FIELDS; i++)
 			sheet.autoSizeColumn(i);
+=======
+	public <T> String[] getFieldValues(T entity) {
+		String[] fieldValues = new String[4];
+		Pet pet = (Pet) entity;
+
+		fieldValues[0] = pet.getId().toString();
+		fieldValues[1] = pet.getName();
+		fieldValues[2] = pet.getBirthDate().toString();
+		fieldValues[3] = pet.getType().toString();
+
+		return fieldValues;
+>>>>>>> da2b995c2562f1c23f6300846db9542b6a0797fb
 	}
 
 	@Override
 	public String[] getFields() {
-		return FIELDS;
+		return new String[] { "id", "name", "birthDate", "type" };
+	}
+
+	@Override
+	public <T> void setHyperCell(Cell cell, T entity) {
+		Pet pet = (Pet) entity;
+		if (pet.getVisits().isEmpty())
+			return;
+		setCell(cell, "see visits", style("LINK"));
+		setHyperLink(cell, "Visits" + pet.getId());
 	}
 
 	@Override
