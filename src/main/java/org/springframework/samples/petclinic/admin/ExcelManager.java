@@ -1,5 +1,6 @@
 package org.springframework.samples.petclinic.admin;
 
+import org.apache.poi.common.usermodel.HyperlinkType;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
@@ -12,16 +13,16 @@ import java.util.List;
 
 public abstract class ExcelManager {
 
-	Workbook wb;
+	static Workbook wb;
 	final int START_ROW = 3;
 	final int START_COL = 3;
 
 	ByteArrayInputStream dataToExcel(List<?> table) {
 		try {
-			this.wb = new XSSFWorkbook();
+			wb = new XSSFWorkbook();
 			ByteArrayOutputStream out = new ByteArrayOutputStream();
 			// create sheets
-			this.makeSheets(table);
+			this.makeSheets(table, 0);
 			// write
 			wb.write(out);
 			return new ByteArrayInputStream(out.toByteArray());
@@ -41,6 +42,12 @@ public abstract class ExcelManager {
 
 		// writeData
 		writeData(sheet, table);
+
+		// make hyperlink
+		for(int i = START_ROW+2; i < START_ROW+table.size(); i++){
+			Cell hyperCell = sheet.getRow(i).createCell(START_COL+fields.length);
+			setHyperCell(hyperCell, table.get(i-START_ROW-2));
+		}
 	}
 
 	public String makeSheetName(List<?> table, int referenceId) {
@@ -50,7 +57,7 @@ public abstract class ExcelManager {
 		String sheetName = className.substring(className.lastIndexOf('.') + 1) + "s";
 		// get sheet's number
 		if (referenceId != 0)
-			sheetName = className.concat(Integer.toString(referenceId));
+			sheetName = sheetName.concat(Integer.toString(referenceId));
 
 		return sheetName;
 	}
@@ -74,6 +81,43 @@ public abstract class ExcelManager {
 			cell.setCellValue(fields[i-START_COL]);
 			cell.setCellStyle(style("HEADER"));
 		}
+	}
+
+	public void setCell(Cell cell, String value, CellStyle style){
+		cell.setCellValue(value);
+		cell.setCellStyle(style);
+	}
+
+	public void writeData(Sheet sheet, List<?> table) {
+
+		final int ROW_LEN = table.size();
+		int COL_LEN = getFields().length;
+
+		for(int i = START_ROW+2; i < START_ROW + ROW_LEN; i++){
+			String[] fieldValues = getFieldValues(table.get(i-START_ROW-2));
+
+			Row row = sheet.createRow(i);
+
+			Cell cell = row.createCell(START_COL);
+			setCell(cell, fieldValues[0], style("DATA_LEFT"));
+
+			for(int j = START_COL+1; j < START_COL + COL_LEN - 1; j++){
+				cell = row.createCell(j);
+				setCell(cell, fieldValues[j-START_COL], style("DATA"));
+			}
+
+			cell = row.createCell(START_COL + COL_LEN - 1);
+			setCell(cell, fieldValues[COL_LEN-1], style("DATA_RIGHT"));
+
+		}
+		// auto sizer
+		for(int i = START_COL; i <= START_COL + COL_LEN; i++) sheet.autoSizeColumn(i);
+	}
+
+	public void setHyperLink(Cell cell, String sheetName){
+		Hyperlink hyperlink = wb.getCreationHelper().createHyperlink(HyperlinkType.DOCUMENT);
+		hyperlink.setAddress(sheetName + "!B2");
+		cell.setHyperlink(hyperlink);
 	}
 
 	// Cell styles
@@ -112,10 +156,13 @@ public abstract class ExcelManager {
 		return style;
 	}
 
-	public abstract void makeSheets(List<?> table);
 
-	public abstract void writeData(Sheet sheet, List<?> Table);
+	public abstract <T> String[] getFieldValues(T entity);
+
+	public abstract void makeSheets(List<?> table, int referenceId);
 
 	public abstract String[] getFields();
+
+	public abstract <T> void setHyperCell(Cell cell, T entity);
 
 }

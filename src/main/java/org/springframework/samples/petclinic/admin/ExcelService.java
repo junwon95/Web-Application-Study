@@ -16,6 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.beans.IntrospectionException;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -49,6 +50,7 @@ public class ExcelService {
 	}
 
 	public ByteArrayInputStream load() throws IntrospectionException, InvocationTargetException {
+		// Owner ver
 		List<Owner> owners = ownerRepository.findAll();
 		for (Owner owner : owners) {
 			for (Pet pet : owner.getPets()) {
@@ -60,17 +62,24 @@ public class ExcelService {
 				}
 			}
 		}
-		List<Pet> pets = petRepository.findAll();
-		for (Pet pet : pets) {
-			pet.setVisitsInternal(visitRepository.findVisitsByPetId(pet.getId()));
-			for (Visit visit : pet.getVisits()) {
-				List<Treatment> treatments = new ArrayList<>();
-				treatments.add(treatmentRepository.findByVisitId(visit.getId()));
-				visit.setTreatments(treatments);
-			}
-		}
-		PetExcelManager petExcelManager = new PetExcelManager();
-		ByteArrayInputStream in = petExcelManager.dataToExcel(pets);
+		OwnerExcelManager ownerExcelManager = new OwnerExcelManager();
+		ByteArrayInputStream in = ownerExcelManager.dataToExcel(owners);
+
+		// recursive ver
+		// ByteArrayInputStream in = ExcelManager2.dataToExcel(owners);
+
+		// Pet ver
+//		List<Pet> pets = petRepository.findAll();
+//		for (Pet pet : pets) {
+//			pet.setVisitsInternal(visitRepository.findVisitsByPetId(pet.getId()));
+//			for (Visit visit : pet.getVisits()) {
+//				List<Treatment> treatments = new ArrayList<>();
+//				treatments.add(treatmentRepository.findByVisitId(visit.getId()));
+//				visit.setTreatments(treatments);
+//			}
+//		}
+//		PetExcelManager petExcelManager = new PetExcelManager();
+//		ByteArrayInputStream in = petExcelManager.dataToExcel(pets);
 
 		return in;
 	}

@@ -2,57 +2,43 @@ package org.springframework.samples.petclinic.admin;
 
 import org.apache.poi.ss.usermodel.*;
 import org.springframework.samples.petclinic.owner.Owner;
+import org.springframework.samples.petclinic.owner.Pet;
 
 import java.util.List;
 
 public class OwnerExcelManager extends ExcelManager {
-	private static final String[] FIELDS = {"id", "firstName", "lastName", "Address", "city", "telephone"};
 
 	@Override
-	public void makeSheets(List<?> table) {
-		makeSheet(table, 0);
+	public void makeSheets(List<?> table, int referenceId) {
+		makeSheet(table, referenceId);
+
+		for(Object entity : table){
+			Owner owner = (Owner) entity;
+			if(owner.getPets().isEmpty()) continue;
+			List<Pet> pets = owner.getPets();
+			PetExcelManager petExcelManager = new PetExcelManager();
+			petExcelManager.makeSheets(pets, owner.getId());
+		}
 	}
 
 	@Override
-	public void writeData(Sheet sheet, List<?> table) {
-		final int FIELDS = 6;
-		int rowIdx = START_ROW+2;
-		for(Object t : table){
-			Owner owner = (Owner) t;
+	public <T> String[] getFieldValues(T entity){
+		String fieldValues[] = new String[6];
+		Owner owner = (Owner) entity;
 
-			int colIdx = START_COL;
-			Row row = sheet.createRow(rowIdx++);
+		fieldValues[0] = owner.getId().toString();
+		fieldValues[1] = owner.getFirstName();
+		fieldValues[2] = owner.getLastName();
+		fieldValues[3] = owner.getAddress();
+		fieldValues[4] = owner.getCity();
+		fieldValues[5] = owner.getTelephone();
 
-			Cell cell = row.createCell(colIdx++);
-			cell.setCellValue(owner.getId());
-			cell.setCellStyle(style("DATA_LEFT"));
-
-			cell = row.createCell(colIdx++);
-			cell.setCellValue(owner.getFirstName());
-			cell.setCellStyle(style("DATA"));
-
-			cell = row.createCell(colIdx++);
-			cell.setCellValue(owner.getLastName());
-			cell.setCellStyle(style("DATA"));
-
-			cell = row.createCell(colIdx++);
-			cell.setCellValue(owner.getAddress());
-			cell.setCellStyle(style("DATA"));
-
-			cell = row.createCell(colIdx++);
-			cell.setCellValue(owner.getCity());
-			cell.setCellStyle(style("DATA"));
-
-			cell = row.createCell(colIdx);
-			cell.setCellValue(owner.getTelephone());
-			cell.setCellStyle(style("DATA_RIGHT"));
-		}
-		for(int i = START_COL; i < START_COL+FIELDS; i++) sheet.autoSizeColumn(i);
+		return fieldValues;
 	}
 
 	@Override
 	public String[] getFields() {
-		return FIELDS;
+		return new String[]{"id", "firstName", "lastName", "Address", "city", "telephone"};
 	}
 
 	@Override
@@ -60,5 +46,13 @@ public class OwnerExcelManager extends ExcelManager {
 		CellStyle style = super.style(type);
 
 		return style;
+	}
+
+	@Override
+	public <T> void setHyperCell(Cell cell, T entity){
+		Owner owner = (Owner) entity;
+		if(owner.getPets().isEmpty()) return;
+		setCell(cell, "see pets", style("LINK"));
+		setHyperLink(cell, "Pets" + owner.getId());
 	}
 }

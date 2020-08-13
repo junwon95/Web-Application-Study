@@ -31,7 +31,7 @@ class AdminController {
 
 	@GetMapping("/admin/download")
 	public ResponseEntity<Resource> downloadFile() throws IntrospectionException, InvocationTargetException {
-		String filename = "ownerData.xlsx";
+		String filename = "petclinicData.xlsx";
 		InputStreamResource file = new InputStreamResource(excelService.load());
 
 		return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + filename)
