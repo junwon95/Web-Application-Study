@@ -45,7 +45,6 @@ public class OwnerExcelManager extends ExcelManager {
 	@Override
 	public CellStyle style(String type) {
 		CellStyle style = super.style(type);
-
 		return style;
 	}
 
@@ -55,7 +54,7 @@ public class OwnerExcelManager extends ExcelManager {
 		if (owner.getPets().isEmpty())
 			return;
 		setCell(cell, "see pets", style("LINK"));
-		setHyperLink(cell, "Pets" + owner.getId());
+		setHyperLink(cell, "Pets" + owner.getId(), excelCoordinates());
 	}
 
 }
