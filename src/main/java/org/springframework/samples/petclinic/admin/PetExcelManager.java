@@ -44,7 +44,7 @@ public class PetExcelManager extends ExcelManager {
 		if (pet.getVisits().isEmpty())
 			return;
 		setCell(cell, "see visits", style("LINK"));
-		setHyperLink(cell, "Visits" + pet.getId());
+		setHyperLink(cell, "Visits" + pet.getId(), excelCoordinates(2,2));
 	}
 
 	@Override

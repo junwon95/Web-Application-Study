@@ -54,7 +54,7 @@ public class OwnerExcelManager extends ExcelManager {
 		if (owner.getPets().isEmpty())
 			return;
 		setCell(cell, "see pets", style("LINK"));
-		setHyperLink(cell, "Pets" + owner.getId(), excelCoordinates(2,2);
+		setHyperLink(cell, "Pets" + owner.getId(), excelCoordinates(2,2));
 	}
 
 }
