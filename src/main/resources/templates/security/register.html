@@ -13,8 +13,8 @@
     <p th:if="${#fields.hasErrors('username')}" class="label label-danger" th:errors="*{username}">username err</p>
   </div>
   <div>
-    <label> PassWord: <input class="form-control" th:field="*{password}"/> </label>
-    <p th:if="${#fields.hasErrors('password')}" type="password" class="label label-danger" th:errors="*{password}">password err</p>
+    <label> PassWord: <input class="form-control" type="password" th:field="*{password}"/> </label>
+    <p th:if="${#fields.hasErrors('password')}" class="label label-danger" th:errors="*{password}">password err</p>
   </div>
   <div>
     <label> Email: <input class="form-control" th:field="*{email}"/> </label>
