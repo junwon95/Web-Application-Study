@@ -124,18 +124,17 @@ public abstract class ExcelManager {
 		cell.setHyperlink(hyperlink);
 	}
 
-	public String excelCoordinates(int row, int col){
+	public String excelCoordinates(int row, int col) {
 		String colString = "";
 		int digitValue = 26;
-		while(col != 0){
-			int digit = row%digitValue;
-			colString = (char)(digit + 65) + colString;
+		while (col != 0) {
+			int digit = row % digitValue;
+			colString = (char) (digit + 65) + colString;
 			col -= digit;
 		}
 
 		return colString + row;
 	}
-
 
 	// Cell styles
 	public CellStyle style(String type) {
